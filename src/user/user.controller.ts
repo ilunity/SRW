@@ -8,9 +8,6 @@ import { Comment } from '../comment/comment.entity';
 import { FavouriteRecipe } from '../favourite-recipe/favourite-recipe.entity';
 import { CreateFavouriteRecipeDto } from '../favourite-recipe/favourite-recipe.dto';
 import { FavouriteRecipeService } from '../favourite-recipe/favourite-recipe.service';
-import { SavedRecipeService } from '../saved-recipe/saved-recipe.service';
-import { CreateSavedRecipeDto } from '../saved-recipe/saved-recipe.dto';
-import { SavedRecipe } from '../saved-recipe/saved-recipe.entity';
 import { CreateRatingDto, UpdateRatingDto } from '../rating/dto';
 import { Rating } from '../rating/entities/rating.entity';
 import { RatingService } from '../rating/rating.service';
@@ -23,7 +20,6 @@ export class UserController {
     private userService: UserService,
     private commentService: CommentService,
     private favouriteRecipeService: FavouriteRecipeService,
-    private savedRecipeService: SavedRecipeService,
     private ratingService: RatingService,
   ) {}
 
@@ -91,20 +87,6 @@ export class UserController {
   @Delete('remove_favourite_recipe/:favourite_id')
   removeFavouriteRecipe(@Param('favourite_id') favouriteId: string) {
     this.favouriteRecipeService.remove(favouriteId);
-  }
-
-  // ---------- saved ----------
-
-  /** Adds recipe in saved */
-  @Post('add_saved_recipe')
-  addSavedRecipe(@Body() createSavedRecipeDto: CreateSavedRecipeDto): Promise<SavedRecipe> {
-    return this.savedRecipeService.create(createSavedRecipeDto);
-  }
-
-  /** Remove the saved recipe */
-  @Delete('remove_favourite_recipe/:saved_id')
-  removeSavedRecipe(@Param('saved_id') savedId: string) {
-    this.savedRecipeService.remove(savedId);
   }
 
   // ---------- rating ----------

@@ -3,7 +3,6 @@ import { Recipe } from '../../recipe/entity/recipe.entity';
 import { ApiHideProperty } from '@nestjs/swagger';
 import { PUBLIC_ROLES } from './public-roles';
 import { Comment } from '../../comment/comment.entity';
-import { SavedRecipe } from '../../saved-recipe/saved-recipe.entity';
 import { FavouriteRecipe } from '../../favourite-recipe/favourite-recipe.entity';
 import { Rating } from '../../rating/entities/rating.entity';
 
@@ -36,10 +35,6 @@ export class User extends Model {
   @ApiHideProperty()
   @HasMany(() => Comment)
   comments: Comment[];
-
-  @ApiHideProperty()
-  @HasMany(() => SavedRecipe)
-  saved_recipes: SavedRecipe[];
 
   @ApiHideProperty()
   @HasMany(() => FavouriteRecipe)

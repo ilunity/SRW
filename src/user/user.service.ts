@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './entity/user.entity';
 import { CreateUserDto, UpdateUserDto } from './dto';
-import { SavedRecipe } from '../saved-recipe/saved-recipe.entity';
 import { FavouriteRecipe } from '../favourite-recipe/favourite-recipe.entity';
 
 @Injectable()
@@ -10,8 +9,6 @@ export class UserService {
   constructor(
     @InjectModel(User)
     private userModel: typeof User,
-    @InjectModel(SavedRecipe)
-    private savedRecipeModel: typeof SavedRecipe,
     @InjectModel(FavouriteRecipe)
     private favouriteRecipeModel: typeof FavouriteRecipe,
   ) {}

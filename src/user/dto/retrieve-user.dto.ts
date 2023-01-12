@@ -5,10 +5,8 @@ import { FavouriteRecipe } from '../../favourite-recipe/favourite-recipe.entity'
 
 export class RetrieveUserDto {
   readonly id: number;
-  readonly name: string;
-  readonly surname: string;
+  readonly username: string;
   readonly email: string;
-  readonly password: string;
   readonly role: PUBLIC_ROLES;
   readonly recipes: Recipe[];
   readonly comments: Comment[];

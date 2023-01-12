@@ -14,18 +14,12 @@ export class User extends Model {
   id: number;
 
   @Column({ allowNull: false })
-  name: string;
-
-  @Column
-  surname: string;
+  username: string;
 
   @Column({ allowNull: false, unique: true })
   email: string;
 
-  @Column({ allowNull: false })
-  password: string;
-
-  @Column({ allowNull: false })
+  @Column({ allowNull: false, defaultValue: PUBLIC_ROLES.USER })
   role: PUBLIC_ROLES;
 
   @ApiHideProperty()

@@ -1,5 +1,5 @@
-import { User } from '../user/entity/user.entity';
-import { Recipe } from '../recipe/entity/recipe.entity';
+import { User } from '../../user/entity/user.entity';
+import { Recipe } from '../../recipe/entity/recipe.entity';
 import { IsDefined, IsInt } from 'class-validator';
 
 export class CreateFavouriteRecipeDto {

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateRatingDto, UpdateRatingDto } from './dto';
 import { InjectModel } from '@nestjs/sequelize';
-import { Rating } from './entities/rating.entity';
+import { Rating } from './entity/rating.entity';
 import { handleRowNotExist } from '../utils';
 import { Recipe } from '../recipe/entity/recipe.entity';
 import { User } from '../user/entity/user.entity';

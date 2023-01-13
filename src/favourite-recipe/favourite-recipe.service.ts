@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { FavouriteRecipe } from './favourite-recipe.entity';
-import { CreateFavouriteRecipeDto } from './favourite-recipe.dto';
+import { FavouriteRecipe } from './entity/favourite-recipe.entity';
+import { CreateFavouriteRecipeDto } from './dto/favourite-recipe.dto';
 import { handleRowExist } from '../utils';
 
 @Injectable()

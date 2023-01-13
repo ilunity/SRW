@@ -1,7 +1,7 @@
 import { User } from '../../user/entity/user.entity';
-import { Comment } from '../../comment/comment.entity';
-import { RecipeProduct } from '../../recipe-product/recipe-product.entity';
-import { Rating } from '../../rating/entities/rating.entity';
+import { Comment } from '../../comment/entity/comment.entity';
+import { RecipeProduct } from '../../recipe-product/entity/recipe-product.entity';
+import { Rating } from '../../rating/entity/rating.entity';
 
 export class RetrieveRecipeDto {
   readonly id: number;

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { Product } from './product.entity';
+import { Product } from './entity/product.entity';
 import { ProductService } from './product.service';
 import { FileService } from '../file/file.service';
 import { ProductController } from './product.controller';

@@ -1,5 +1,5 @@
 import { Column, HasMany, Model, Table } from 'sequelize-typescript';
-import { RecipeProduct } from '../recipe-product/recipe-product.entity';
+import { RecipeProduct } from '../../recipe-product/entity/recipe-product.entity';
 import { ApiHideProperty } from '@nestjs/swagger';
 
 @Table({

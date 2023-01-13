@@ -3,13 +3,13 @@ import { UserService } from './user.service';
 import { ApiTags } from '@nestjs/swagger';
 import { User } from './entity/user.entity';
 import { CreateUserDto, UpdateUserDto } from './dto';
-import { CreateCommentDto, ReturnedCommentDto } from '../comment/comment.dto';
-import { Comment } from '../comment/comment.entity';
-import { FavouriteRecipe } from '../favourite-recipe/favourite-recipe.entity';
-import { CreateFavouriteRecipeDto } from '../favourite-recipe/favourite-recipe.dto';
+import { CreateCommentDto, ReturnedCommentDto } from '../comment/dto/comment.dto';
+import { Comment } from '../comment/entity/comment.entity';
+import { FavouriteRecipe } from '../favourite-recipe/entity/favourite-recipe.entity';
+import { CreateFavouriteRecipeDto } from '../favourite-recipe/dto/favourite-recipe.dto';
 import { FavouriteRecipeService } from '../favourite-recipe/favourite-recipe.service';
 import { CreateRatingDto, UpdateRatingDto } from '../rating/dto';
-import { Rating } from '../rating/entities/rating.entity';
+import { Rating } from '../rating/entity/rating.entity';
 import { RatingService } from '../rating/rating.service';
 import { CommentService } from '../comment/comment.service';
 

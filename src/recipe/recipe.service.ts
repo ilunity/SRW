@@ -3,10 +3,10 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Recipe } from './entity/recipe.entity';
 import { CreateRecipeDto, RetrieveRecipeDto } from './dto';
 import { User } from '../user/entity/user.entity';
-import { Comment } from '../comment/comment.entity';
+import { Comment } from '../comment/entity/comment.entity';
 import { FileService, FileType } from '../file/file.service';
 import { Sequelize } from 'sequelize-typescript';
-import { RecipeProduct } from '../recipe-product/recipe-product.entity';
+import { RecipeProduct } from '../recipe-product/entity/recipe-product.entity';
 
 @Injectable()
 export class RecipeService {

@@ -2,10 +2,10 @@ import { BelongsTo, Column, ForeignKey, HasMany, Model, Table } from 'sequelize-
 import { DataTypes } from 'sequelize';
 import { User } from '../../user/entity/user.entity';
 import { ApiHideProperty } from '@nestjs/swagger';
-import { Comment } from '../../comment/comment.entity';
-import { RecipeProduct } from '../../recipe-product/recipe-product.entity';
-import { FavouriteRecipe } from '../../favourite-recipe/favourite-recipe.entity';
-import { Rating } from '../../rating/entities/rating.entity';
+import { Comment } from '../../comment/entity/comment.entity';
+import { RecipeProduct } from '../../recipe-product/entity/recipe-product.entity';
+import { FavouriteRecipe } from '../../favourite-recipe/entity/favourite-recipe.entity';
+import { Rating } from '../../rating/entity/rating.entity';
 
 @Table({ timestamps: false })
 export class Recipe extends Model {

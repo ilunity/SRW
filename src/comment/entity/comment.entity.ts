@@ -1,14 +1,18 @@
 import { BelongsTo, Column, ForeignKey, Model, Table } from 'sequelize-typescript';
 import { ApiHideProperty } from '@nestjs/swagger';
-import { Recipe } from '../recipe/entity/recipe.entity';
-import { User } from '../user/entity/user.entity';
+import { DataTypes } from 'sequelize';
+import { User } from '../../user/entity/user.entity';
+import { Recipe } from '../../recipe/entity/recipe.entity';
 
 @Table({
   timestamps: false,
 })
-export class FavouriteRecipe extends Model {
+export class Comment extends Model {
   @Column({ primaryKey: true, autoIncrement: true })
   id: number;
+
+  @Column({ type: DataTypes.TEXT, allowNull: false })
+  text: string;
 
   @ForeignKey(() => User)
   @Column

@@ -1,11 +1,11 @@
 import { SequelizeModule } from '@nestjs/sequelize';
 import { User } from './user/entity/user.entity';
 import { Recipe } from './recipe/entity/recipe.entity';
-import { Comment } from './comment/comment.entity';
-import { Product } from './product/product.entity';
-import { RecipeProduct } from './recipe-product/recipe-product.entity';
-import { FavouriteRecipe } from './favourite-recipe/favourite-recipe.entity';
-import { Rating } from './rating/entities/rating.entity';
+import { Comment } from './comment/entity/comment.entity';
+import { Product } from './product/entity/product.entity';
+import { RecipeProduct } from './recipe-product/entity/recipe-product.entity';
+import { FavouriteRecipe } from './favourite-recipe/entity/favourite-recipe.entity';
+import { Rating } from './rating/entity/rating.entity';
 
 export const DbConnection = SequelizeModule.forRoot({
   dialect: 'postgres',

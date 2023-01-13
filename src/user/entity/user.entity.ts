@@ -2,9 +2,9 @@ import { Column, HasMany, Model, Table } from 'sequelize-typescript';
 import { Recipe } from '../../recipe/entity/recipe.entity';
 import { ApiHideProperty } from '@nestjs/swagger';
 import { PUBLIC_ROLES } from './public-roles';
-import { Comment } from '../../comment/comment.entity';
-import { FavouriteRecipe } from '../../favourite-recipe/favourite-recipe.entity';
-import { Rating } from '../../rating/entities/rating.entity';
+import { Comment } from '../../comment/entity/comment.entity';
+import { FavouriteRecipe } from '../../favourite-recipe/entity/favourite-recipe.entity';
+import { Rating } from '../../rating/entity/rating.entity';
 
 @Table({
   timestamps: false,

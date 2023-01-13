@@ -1,7 +1,7 @@
-import { CreateCommentDto, ReturnedCommentDto } from './comment.dto';
+import { CreateCommentDto, ReturnedCommentDto } from './dto/comment.dto';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Comment } from './comment.entity';
+import { Comment } from './entity/comment.entity';
 import { User } from '../user/entity/user.entity';
 import { Recipe } from '../recipe/entity/recipe.entity';
 import { WhereOptions } from 'sequelize';

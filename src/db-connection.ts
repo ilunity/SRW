@@ -6,6 +6,11 @@ import { Product } from './product/entity/product.entity';
 import { RecipeProduct } from './recipe-product/entity/recipe-product.entity';
 import { FavouriteRecipe } from './favourite-recipe/entity/favourite-recipe.entity';
 import { Rating } from './rating/entity/rating.entity';
+import { ProductMeasurement } from './product-measurement/entity/product-measurement.entity';
+import { RecipeStep } from './recipe-step/entity/recipe-step.entity';
+import { Filter } from './filter/entity/filter.entity';
+import { FilterType } from './filter-type/entity/filter-type.entity';
+import { RecipeFilter } from './recipe-filter/entity/recipe-filter.entity';
 
 export const DbConnection = SequelizeModule.forRoot({
   dialect: 'postgres',
@@ -14,7 +19,20 @@ export const DbConnection = SequelizeModule.forRoot({
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  models: [User, Recipe, Comment, Product, RecipeProduct, FavouriteRecipe, Rating],
+  models: [
+    User,
+    Comment,
+    ProductMeasurement,
+    Product,
+    RecipeProduct,
+    FilterType,
+    Filter,
+    RecipeStep,
+    Recipe,
+    RecipeFilter,
+    FavouriteRecipe,
+    Rating,
+  ],
   synchronize: true,
   autoLoadModels: true,
 });

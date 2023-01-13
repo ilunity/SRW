@@ -7,6 +7,7 @@ import { RecipeProduct } from '../../recipe-product/entity/recipe-product.entity
 import { FavouriteRecipe } from '../../favourite-recipe/entity/favourite-recipe.entity';
 import { Rating } from '../../rating/entity/rating.entity';
 import { RecipeStep } from '../../recipe-step/entity/recipe-step.entity';
+import { RecipeFilter } from '../../recipe-filter/entity/recipe-filter.entity';
 
 @Table({ timestamps: false })
 export class Recipe extends Model {
@@ -50,6 +51,10 @@ export class Recipe extends Model {
   @ApiHideProperty()
   @HasMany(() => RecipeProduct)
   products: RecipeProduct[];
+
+  @ApiHideProperty()
+  @HasMany(() => RecipeFilter)
+  filters: RecipeFilter[];
 
   @ApiHideProperty()
   @HasMany(() => FavouriteRecipe)

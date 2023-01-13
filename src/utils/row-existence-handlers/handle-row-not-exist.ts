@@ -1,7 +1,7 @@
 import { WhereOptions } from 'sequelize';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { checkRowExist } from './check-row-exist';
-import { ModelType } from './model-type';
+import { ModelType } from '../model-type';
 
 export const handleRowNotExist = async (model: ModelType<any>, where: WhereOptions) => {
   const isRowAlreadyExist = await checkRowExist(model, where);

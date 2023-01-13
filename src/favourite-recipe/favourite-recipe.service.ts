@@ -19,6 +19,16 @@ export class FavouriteRecipeService {
     return await this.favouriteRecipeModel.create({ ...createFavouriteRecipeDto });
   }
 
+  async findAll() {
+    return await this.favouriteRecipeModel.findAll();
+  }
+
+  async findByUser(id: number) {
+    return await this.favouriteRecipeModel.findAll({
+      where: { userId: id },
+    });
+  }
+
   async remove(id: string): Promise<void> {
     const favourite = await this.favouriteRecipeModel.findByPk(id);
 

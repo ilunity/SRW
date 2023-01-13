@@ -9,7 +9,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { RecipeService } from './recipe.service';
-import { CreateRecipeDto, RetrieveRecipeDto } from './dto';
+import { CreateRecipeDto, ReadRecipeDto } from './dto';
 import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { Recipe } from './entity/recipe.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -39,7 +39,7 @@ export class RecipeController {
 
   /** Returns the Recipe */
   @Get(':recipe_id')
-  findOne(@Param('recipe_id') recipeId: string): Promise<RetrieveRecipeDto> {
+  findOne(@Param('recipe_id') recipeId: string): Promise<ReadRecipeDto> {
     return this.recipeService.findOne(recipeId);
   }
 

@@ -1,7 +1,7 @@
 import { InjectModel } from '@nestjs/sequelize';
 import { Product } from './entity/product.entity';
 import { Injectable } from '@nestjs/common';
-import { CreateProductDto } from './dto/product.dto';
+import { CreateProductDto } from './dto';
 import { FileService, FileType } from '../file/file.service';
 
 @Injectable()

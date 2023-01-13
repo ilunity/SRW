@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Recipe } from './entity/recipe.entity';
-import { CreateRecipeDto, RetrieveRecipeDto } from './dto';
+import { CreateRecipeDto, ReadRecipeDto } from './dto';
 import { User } from '../user/entity/user.entity';
 import { Comment } from '../comment/entity/comment.entity';
 import { FileService, FileType } from '../file/file.service';
@@ -27,7 +27,7 @@ export class RecipeService {
     return this.recipeModel.findAll();
   }
 
-  async findOne(id: string): Promise<RetrieveRecipeDto> {
+  async findOne(id: string): Promise<ReadRecipeDto> {
     return this.recipeModel.findOne({
       where: { id },
       include: [User, Comment, RecipeProduct],

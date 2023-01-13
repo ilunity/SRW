@@ -3,10 +3,10 @@ import { UserService } from './user.service';
 import { ApiTags } from '@nestjs/swagger';
 import { User } from './entity/user.entity';
 import { CreateUserDto, UpdateUserDto } from './dto';
-import { CreateCommentDto, ReturnedCommentDto } from '../comment/dto/comment.dto';
+import { CreateCommentDto, ReadCommentDto } from '../comment/dto';
 import { Comment } from '../comment/entity/comment.entity';
 import { FavouriteRecipe } from '../favourite-recipe/entity/favourite-recipe.entity';
-import { CreateFavouriteRecipeDto } from '../favourite-recipe/dto/favourite-recipe.dto';
+import { CreateFavouriteRecipeDto } from '../favourite-recipe/dto';
 import { FavouriteRecipeService } from '../favourite-recipe/favourite-recipe.service';
 import { CreateRatingDto, UpdateRatingDto } from '../rating/dto';
 import { Rating } from '../rating/entity/rating.entity';
@@ -64,7 +64,7 @@ export class UserController {
   // todo Возвращает комментарии всех пользователей вместо одного
   /** Returns user comments */
   @Get(':user_id/comments')
-  findComments(@Param('user_id') userId: string): Promise<ReturnedCommentDto[]> {
+  findComments(@Param('user_id') userId: string): Promise<ReadCommentDto[]> {
     return this.commentService.findAll();
   }
 

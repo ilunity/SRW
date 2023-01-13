@@ -1,2 +1,2 @@
 export * from './create-recipe.dto';
-export * from './retrieve-recipe.dto';
+export * from './read-recipe.dto';

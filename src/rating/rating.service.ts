@@ -28,12 +28,12 @@ export class RatingService {
     return this.ratingModel.findAll();
   }
 
-  async findAllByUser(userId: string): Promise<Rating[]> {
-    return this.ratingModel.findAll({ where: { user_id: userId } });
+  async findAllByUser(id: string): Promise<Rating[]> {
+    return this.ratingModel.findAll({ where: { user_id: id } });
   }
 
-  async findAllByRecipe(recipeId: string): Promise<Rating[]> {
-    return this.ratingModel.findAll({ where: { recipe_id: recipeId } });
+  async findAllByRecipe(id: string): Promise<Rating[]> {
+    return this.ratingModel.findAll({ where: { recipe_id: id } });
   }
 
   async findOne(id: string): Promise<Rating> {

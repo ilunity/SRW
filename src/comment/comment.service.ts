@@ -1,4 +1,4 @@
-import { CreateCommentDto, ReturnedCommentDto } from './dto/comment.dto';
+import { CreateCommentDto, ReadCommentDto } from './dto';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Comment } from './entity/comment.entity';
@@ -17,7 +17,7 @@ export class CommentService {
     return await this.commentModel.create({ ...createCommentDto });
   }
 
-  async findAll(additionalWhere?: WhereOptions): Promise<ReturnedCommentDto[]> {
+  async findAll(additionalWhere?: WhereOptions): Promise<ReadCommentDto[]> {
     return await this.commentModel.findAll({
       where: { ...additionalWhere },
       include: [User, Recipe],
@@ -25,11 +25,11 @@ export class CommentService {
     });
   }
 
-  async findAllByUser(id: string): Promise<ReturnedCommentDto[]> {
+  async findAllByUser(id: string): Promise<ReadCommentDto[]> {
     return await this.findAll({ user_id: id });
   }
 
-  async findAllByRecipe(id: string): Promise<ReturnedCommentDto[]> {
+  async findAllByRecipe(id: string): Promise<ReadCommentDto[]> {
     return await this.commentModel.findAll({
       where: { recipe_id: id },
       include: [User, Recipe],
@@ -39,7 +39,6 @@ export class CommentService {
 
   async remove(id: string): Promise<void> {
     const comment = await this.commentModel.findByPk(id);
-
     return await comment.destroy();
   }
 }

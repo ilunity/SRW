@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { RecipeStep } from './entity/recipe-step.entity';
-import { CreateRecipeStepDto } from './dto/create-recipe-step.dto';
+import { CreateRecipeStepDto, UpdateRecipeStepDto } from './dto';
 import { FileService, FileType } from '../file/file.service';
-import { UpdateRecipeStepDto } from './dto/update-recipe-step.dto';
 
 @Injectable()
 export class RecipeStepService {

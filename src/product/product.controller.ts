@@ -3,7 +3,7 @@ import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { ProductService } from './product.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
-import { CreateProductDto } from './dto/product.dto';
+import { CreateProductDto } from './dto';
 import { Product } from './entity/product.entity';
 
 @ApiTags('Product')

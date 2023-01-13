@@ -3,7 +3,7 @@ import { Comment } from '../../comment/entity/comment.entity';
 import { RecipeProduct } from '../../recipe-product/entity/recipe-product.entity';
 import { Rating } from '../../rating/entity/rating.entity';
 
-export class RetrieveRecipeDto {
+export class ReadRecipeDto {
   readonly id: number;
   readonly title: string;
   // readonly reviews: number;

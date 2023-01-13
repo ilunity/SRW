@@ -26,9 +26,9 @@ export class RecipeController {
   @UseInterceptors(FileInterceptor('file'))
   create(
     @Body() recipeDto: CreateRecipeDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() img: Express.Multer.File,
   ): Promise<Recipe> {
-    return this.recipeService.create(recipeDto, file);
+    return this.recipeService.create(recipeDto, img);
   }
 
   /** Returns a list of recipes */

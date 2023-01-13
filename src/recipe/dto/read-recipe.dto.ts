@@ -6,12 +6,10 @@ import { Rating } from '../../rating/entity/rating.entity';
 export class ReadRecipeDto {
   readonly id: number;
   readonly title: string;
-  // readonly reviews: number;
   readonly time: number;
   readonly rating: number | Rating[];
   readonly img: string;
-  readonly serves_count: number;
-  // readonly products_count: number;
+  readonly servings_number: number;
   readonly description: string;
   readonly moderation_status: boolean;
   readonly user: User;

@@ -12,11 +12,7 @@ export class CreateRecipeDto {
 
   @IsDefined()
   @IsInt()
-  readonly serves_count: number;
-
-  @IsDefined()
-  @IsInt()
-  readonly products_count: number;
+  readonly servings_number: number;
 
   @IsDefined()
   @IsString()

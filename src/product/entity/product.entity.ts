@@ -1,6 +1,7 @@
 import { Column, HasMany, Model, Table } from 'sequelize-typescript';
-import { RecipeProduct } from '../../recipe-product/entity/recipe-product.entity';
 import { ApiHideProperty } from '@nestjs/swagger';
+import { ProductMeasurement } from '../../product-measurement/entity/product-measurement.entity';
+import { RecipeProduct } from '../../recipe-product/entity/recipe-product.entity';
 
 @Table({
   timestamps: false,
@@ -18,4 +19,8 @@ export class Product extends Model {
   @ApiHideProperty()
   @HasMany(() => RecipeProduct)
   recipes: RecipeProduct[];
+
+  @ApiHideProperty()
+  @HasMany(() => ProductMeasurement)
+  measurements: ProductMeasurement[];
 }

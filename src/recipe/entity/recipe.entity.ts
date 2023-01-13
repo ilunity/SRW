@@ -6,6 +6,7 @@ import { Comment } from '../../comment/entity/comment.entity';
 import { RecipeProduct } from '../../recipe-product/entity/recipe-product.entity';
 import { FavouriteRecipe } from '../../favourite-recipe/entity/favourite-recipe.entity';
 import { Rating } from '../../rating/entity/rating.entity';
+import { RecipeStep } from '../../recipe-step/entity/recipe-step.entity';
 
 @Table({ timestamps: false })
 export class Recipe extends Model {
@@ -25,7 +26,7 @@ export class Recipe extends Model {
   time: number;
 
   @Column({ allowNull: false })
-  serves_count: number;
+  servings_number: number;
 
   @Column({ defaultValue: true })
   moderation_status: boolean;
@@ -53,4 +54,8 @@ export class Recipe extends Model {
   @ApiHideProperty()
   @HasMany(() => FavouriteRecipe)
   favourite_recipes: FavouriteRecipe[];
+
+  @ApiHideProperty()
+  @HasMany(() => RecipeStep)
+  steps: RecipeStep[];
 }

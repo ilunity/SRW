@@ -11,7 +11,10 @@ export class RecipeProduct extends Model {
   id: number;
 
   @Column({ allowNull: false })
-  weight: number;
+  measurement_type: string;
+
+  @Column({ allowNull: false })
+  measurement_value: string;
 
   @ApiHideProperty()
   @ForeignKey(() => Recipe)

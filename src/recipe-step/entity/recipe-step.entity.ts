@@ -2,7 +2,7 @@ import { BelongsTo, Column, ForeignKey, Model, Table } from 'sequelize-typescrip
 import { ApiHideProperty } from '@nestjs/swagger';
 import { Recipe } from '../../recipe/entity/recipe.entity';
 
-@Table({})
+@Table({ timestamps: false })
 export class RecipeStep extends Model {
   @Column({ primaryKey: true, autoIncrement: true })
   id: number;

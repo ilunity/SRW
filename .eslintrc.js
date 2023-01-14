@@ -23,7 +23,7 @@ module.exports = {
     // 'no-empty-function': 'error',
     'no-eval': 'error',
     'no-magic-numbers': 'error',
-    'no-unused-vars': ['error', { args: 'none' }],
+    '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
     'no-trailing-spaces': 'error',
     'no-unused-expressions': 'error',
     'no-unused-labels': 'error',

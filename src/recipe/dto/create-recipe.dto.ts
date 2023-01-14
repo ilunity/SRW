@@ -18,6 +18,6 @@ export class CreateRecipeDto {
   @IsString()
   readonly description: string;
 
-  @ApiProperty({ type: 'string', format: 'binary', required: true })
+  @ApiProperty({ type: 'string', format: 'binary', required: false })
   img: Express.Multer.File;
 }

@@ -2,6 +2,7 @@ import { User } from '../../user/entity/user.entity';
 import { Comment } from '../../comment/entity/comment.entity';
 import { RecipeProduct } from '../../recipe-product/entity/recipe-product.entity';
 import { Rating } from '../../rating/entity/rating.entity';
+import { RECIPE_STATUS } from '../entity/recipe-statuses';
 
 export class ReadRecipeDto {
   readonly id: number;
@@ -11,7 +12,7 @@ export class ReadRecipeDto {
   readonly img: string;
   readonly servings_number: number;
   readonly description: string;
-  readonly moderation_status: boolean;
+  readonly status: RECIPE_STATUS;
   readonly user: User;
   readonly comments: Comment[];
   readonly products: RecipeProduct[];

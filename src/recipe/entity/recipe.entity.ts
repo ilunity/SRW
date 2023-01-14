@@ -8,6 +8,7 @@ import { FavouriteRecipe } from '../../favourite-recipe/entity/favourite-recipe.
 import { Rating } from '../../rating/entity/rating.entity';
 import { RecipeStep } from '../../recipe-step/entity/recipe-step.entity';
 import { RecipeFilter } from '../../recipe-filter/entity/recipe-filter.entity';
+import { RECIPE_STATUS } from './recipe-statuses';
 
 @Table({ timestamps: false })
 export class Recipe extends Model {
@@ -17,7 +18,7 @@ export class Recipe extends Model {
   @Column({ allowNull: false })
   title: string;
 
-  @Column({ allowNull: false })
+  @Column
   img: string;
 
   @Column({ type: DataTypes.TEXT, allowNull: false })
@@ -29,8 +30,8 @@ export class Recipe extends Model {
   @Column({ allowNull: false })
   servings_number: number;
 
-  @Column({ defaultValue: true })
-  moderation_status: boolean;
+  @Column({ defaultValue: RECIPE_STATUS.CREATION })
+  status: RECIPE_STATUS;
 
   @ForeignKey(() => User)
   @Column

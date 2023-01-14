@@ -1,5 +1,4 @@
-import { IsDefined, IsEmail, IsEnum, IsString } from 'class-validator';
-import { PUBLIC_ROLES } from '../entity/public-roles';
+import { IsDefined, IsEmail, IsString } from 'class-validator';
 
 export class CreateUserDto {
   @IsDefined()
@@ -9,7 +8,4 @@ export class CreateUserDto {
   @IsDefined()
   @IsEmail()
   readonly email: string;
-
-  @IsEnum(PUBLIC_ROLES)
-  readonly role: PUBLIC_ROLES;
 }

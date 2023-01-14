@@ -1,8 +1,5 @@
-export enum PUBLIC_ROLES {
+export enum USER_ROLE {
   USER = 'USER',
   CREATOR = 'CREATOR',
-}
-
-export enum PRIVATE_ROLES {
   ADMIN = 'ADMIN',
 }

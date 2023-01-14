@@ -1,7 +1,7 @@
 import { Column, HasMany, Model, Table } from 'sequelize-typescript';
 import { Recipe } from '../../recipe/entity/recipe.entity';
 import { ApiHideProperty } from '@nestjs/swagger';
-import { PUBLIC_ROLES } from './public-roles';
+import { USER_ROLE } from './user-roles';
 import { Comment } from '../../comment/entity/comment.entity';
 import { FavouriteRecipe } from '../../favourite-recipe/entity/favourite-recipe.entity';
 import { Rating } from '../../rating/entity/rating.entity';
@@ -19,8 +19,8 @@ export class User extends Model {
   @Column({ allowNull: false, unique: true })
   email: string;
 
-  @Column({ allowNull: false, defaultValue: PUBLIC_ROLES.USER })
-  role: PUBLIC_ROLES;
+  @Column({ allowNull: false, defaultValue: USER_ROLE.USER })
+  role: USER_ROLE;
 
   @ApiHideProperty()
   @HasMany(() => Recipe)

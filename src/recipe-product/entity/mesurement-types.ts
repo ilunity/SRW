@@ -1,4 +1,4 @@
-export enum MeasurementType {
+export enum MEASUREMENT_TYPE {
   WEIGHT = 'WEIGHT',
   VOLUME = 'VOLUME',
 }

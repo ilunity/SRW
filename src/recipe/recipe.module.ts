@@ -8,10 +8,18 @@ import { RecipeStepService } from '../recipe-step/recipe-step.service';
 import { RecipeStep } from '../recipe-step/entity/recipe-step.entity';
 import { RecipeFilter } from '../recipe-filter/entity/recipe-filter.entity';
 import { RecipeFilterService } from '../recipe-filter/recipe-filter.service';
+import { RecipeProduct } from '../recipe-product/entity/recipe-product.entity';
+import { RecipeProductService } from '../recipe-product/recipe-product.service';
 
 @Module({
-  imports: [SequelizeModule.forFeature([Recipe, RecipeStep, RecipeFilter])],
+  imports: [SequelizeModule.forFeature([Recipe, RecipeStep, RecipeFilter, RecipeProduct])],
   controllers: [RecipeController],
-  providers: [RecipeService, FileService, RecipeStepService, RecipeFilterService],
+  providers: [
+    RecipeService,
+    FileService,
+    RecipeStepService,
+    RecipeFilterService,
+    RecipeProductService,
+  ],
 })
 export class RecipeModule {}

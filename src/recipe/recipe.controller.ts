@@ -20,6 +20,9 @@ import { RecipeStep } from '../recipe-step/entity/recipe-step.entity';
 import { RecipeFilter } from '../recipe-filter/entity/recipe-filter.entity';
 import { CreateRecipeFilterDto } from '../recipe-filter/dto';
 import { RecipeFilterService } from '../recipe-filter/recipe-filter.service';
+import { RecipeProductService } from '../recipe-product/recipe-product.service';
+import { CreateRecipeProductDto } from '../recipe-product/dto';
+import { RecipeProduct } from '../recipe-product/entity/recipe-product.entity';
 
 @ApiTags('Recipe')
 @Controller('recipe')
@@ -28,6 +31,7 @@ export class RecipeController {
     private recipeService: RecipeService,
     private recipeStepService: RecipeStepService,
     private recipeFilterService: RecipeFilterService,
+    private recipeProductService: RecipeProductService,
   ) {}
 
   /** Creates the Recipe record */
@@ -90,5 +94,19 @@ export class RecipeController {
   @Delete('filter/:filter_id')
   removeFilter(@Param('filter_id') filterId: number) {
     return this.recipeFilterService.remove(filterId);
+  }
+
+  // ---------- products ----------
+
+  /** Added the recipe product */
+  @Post('product')
+  addProduct(@Body() createRecipeProductDto: CreateRecipeProductDto): Promise<RecipeProduct> {
+    return this.recipeProductService.create(createRecipeProductDto);
+  }
+
+  /** Deletes the recipe product */
+  @Delete('product/:product_id')
+  removeProduct(@Param('product_id') productId: number) {
+    return this.recipeProductService.remove(productId);
   }
 }

@@ -48,7 +48,7 @@ export class UserController {
   }
 
   /** Updates the user */
-  @Patch(':user_id/update')
+  @Patch(':user_id')
   update(@Param('user_id') userId: number, @Body() updateUserDto: UpdateUserDto): Promise<User> {
     return this.userService.update(userId, updateUserDto);
   }
@@ -63,12 +63,12 @@ export class UserController {
 
   // todo Возвращает комментарии всех пользователей вместо одного
   /** Returns user comments */
-  @Get(':user_id/comments')
+  @Get(':user_id/comment')
   findComments(@Param('user_id') userId: number): Promise<ReadCommentDto[]> {
     return this.commentService.findAll();
   }
 
-  @Delete('/comments/:comment_id')
+  @Delete('/comment/:comment_id')
   removeComment(@Param('comment_id') commentId: number) {
     this.commentService.remove(commentId);
   }
@@ -76,7 +76,7 @@ export class UserController {
   // ---------- favourites ----------
 
   /** Adds recipe in favourites */
-  @Post('add_favourite_recipe')
+  @Post('favourite')
   addFavouriteRecipe(
     @Body() createFavouriteRecipeDto: CreateFavouriteRecipeDto,
   ): Promise<FavouriteRecipe> {
@@ -84,7 +84,7 @@ export class UserController {
   }
 
   /** Remove the favourite recipe */
-  @Delete('remove_favourite_recipe/:favourite_id')
+  @Delete('favourite/:favourite_id')
   removeFavouriteRecipe(@Param('favourite_id') favouriteId: number) {
     this.favouriteRecipeService.remove(favouriteId);
   }
@@ -92,25 +92,25 @@ export class UserController {
   // ---------- rating ----------
 
   /** Rates some recipe */
-  @Post('rate')
+  @Post('rating')
   rate(@Body() createRatingDto: CreateRatingDto): Promise<Rating> {
     return this.ratingService.create(createRatingDto);
   }
 
   /** Get the list of all user's rates */
-  @Get(':user_id/rates')
+  @Get(':user_id/rating')
   findAllRates(@Param('user_id') userId: number): Promise<Rating[]> {
     return this.ratingService.findAllByUser(userId);
   }
 
   /** Get the rate by PK */
-  @Get('rates/:rating_id')
+  @Get('rating/:rating_id')
   findOneRate(@Param('rating_id') ratingId: number): Promise<Rating> {
     return this.ratingService.findOne(ratingId);
   }
 
   /** Updates the rate by PK */
-  @Patch('rates/:rating_id/update')
+  @Patch('rating/:rating_id')
   updateRate(
     @Param('rating_id') ratingId: number,
     @Body() updateRatingDto: UpdateRatingDto,
@@ -119,7 +119,7 @@ export class UserController {
   }
 
   /** Deletes the rate by PK */
-  @Delete('rates/:rating_id/delete')
+  @Delete('rating/:rating_id')
   removeRate(@Param('rating_id') ratingId: number) {
     return this.ratingService.remove(ratingId);
   }

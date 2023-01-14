@@ -25,11 +25,11 @@ export class CommentService {
     });
   }
 
-  async findAllByUser(id: string): Promise<ReadCommentDto[]> {
+  async findAllByUser(id: number): Promise<ReadCommentDto[]> {
     return await this.findAll({ user_id: id });
   }
 
-  async findAllByRecipe(id: string): Promise<ReadCommentDto[]> {
+  async findAllByRecipe(id: number): Promise<ReadCommentDto[]> {
     return await this.commentModel.findAll({
       where: { recipe_id: id },
       include: [User, Recipe],
@@ -37,7 +37,7 @@ export class CommentService {
     });
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: number): Promise<void> {
     const comment = await this.commentModel.findByPk(id);
     return await comment.destroy();
   }

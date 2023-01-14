@@ -16,7 +16,7 @@ export class ProductMeasurementService {
     return this.productMeasurementModel.create({ ...createProductMeasurementDto });
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: number): Promise<void> {
     const productMeasurement = await this.productMeasurementModel.findByPk(id);
     return await productMeasurement.destroy();
   }

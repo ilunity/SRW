@@ -21,18 +21,18 @@ export class UserService {
     return this.userModel.findAll();
   }
 
-  async findOne(id: string): Promise<User> {
+  async findOne(id: number): Promise<User> {
     return this.userModel.findOne({
       where: { id },
     });
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: number): Promise<void> {
     const user = await this.findOne(id);
     await user.destroy();
   }
 
-  async update(id: string, updateDto: UpdateUserDto): Promise<User> {
+  async update(id: number, updateDto: UpdateUserDto): Promise<User> {
     const user = await this.userModel.findByPk(id);
     return await user.update({ ...updateDto });
   }

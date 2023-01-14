@@ -39,13 +39,13 @@ export class RecipeController {
 
   /** Returns the Recipe */
   @Get(':recipe_id')
-  findOne(@Param('recipe_id') recipeId: string): Promise<ReadRecipeDto> {
+  findOne(@Param('recipe_id') recipeId: number): Promise<ReadRecipeDto> {
     return this.recipeService.findOne(recipeId);
   }
 
   /** Deletes the recipe */
   @Delete(':recipe_id')
-  remove(@Param('recipe_id') recipeId: string) {
+  remove(@Param('recipe_id') recipeId: number) {
     this.recipeService.remove(recipeId);
   }
 }

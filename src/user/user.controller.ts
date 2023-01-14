@@ -37,19 +37,19 @@ export class UserController {
 
   /** Returns the user by PK */
   @Get('/:user_id')
-  findOne(@Param('user_id') userId: string): Promise<User> {
+  findOne(@Param('user_id') userId: number): Promise<User> {
     return this.userService.findOne(userId);
   }
 
   /** Deletes the user */
   @Delete(':user_id')
-  remove(@Param('user_id') userId: string) {
+  remove(@Param('user_id') userId: number) {
     return this.userService.remove(userId);
   }
 
   /** Updates the user */
   @Patch(':user_id/update')
-  update(@Param('user_id') userId: string, @Body() updateUserDto: UpdateUserDto): Promise<User> {
+  update(@Param('user_id') userId: number, @Body() updateUserDto: UpdateUserDto): Promise<User> {
     return this.userService.update(userId, updateUserDto);
   }
 
@@ -64,12 +64,12 @@ export class UserController {
   // todo Возвращает комментарии всех пользователей вместо одного
   /** Returns user comments */
   @Get(':user_id/comments')
-  findComments(@Param('user_id') userId: string): Promise<ReadCommentDto[]> {
+  findComments(@Param('user_id') userId: number): Promise<ReadCommentDto[]> {
     return this.commentService.findAll();
   }
 
   @Delete('/comments/:comment_id')
-  removeComment(@Param('comment_id') commentId: string) {
+  removeComment(@Param('comment_id') commentId: number) {
     this.commentService.remove(commentId);
   }
 
@@ -85,7 +85,7 @@ export class UserController {
 
   /** Remove the favourite recipe */
   @Delete('remove_favourite_recipe/:favourite_id')
-  removeFavouriteRecipe(@Param('favourite_id') favouriteId: string) {
+  removeFavouriteRecipe(@Param('favourite_id') favouriteId: number) {
     this.favouriteRecipeService.remove(favouriteId);
   }
 
@@ -99,20 +99,20 @@ export class UserController {
 
   /** Get the list of all user's rates */
   @Get(':user_id/rates')
-  findAllRates(@Param('user_id') userId: string): Promise<Rating[]> {
+  findAllRates(@Param('user_id') userId: number): Promise<Rating[]> {
     return this.ratingService.findAllByUser(userId);
   }
 
   /** Get the rate by PK */
   @Get('rates/:rating_id')
-  findOneRate(@Param('rating_id') ratingId: string): Promise<Rating> {
+  findOneRate(@Param('rating_id') ratingId: number): Promise<Rating> {
     return this.ratingService.findOne(ratingId);
   }
 
   /** Updates the rate by PK */
   @Patch('rates/:rating_id/update')
   updateRate(
-    @Param('rating_id') ratingId: string,
+    @Param('rating_id') ratingId: number,
     @Body() updateRatingDto: UpdateRatingDto,
   ): Promise<Rating> {
     return this.ratingService.update(ratingId, updateRatingDto);
@@ -120,7 +120,7 @@ export class UserController {
 
   /** Deletes the rate by PK */
   @Delete('rates/:rating_id/delete')
-  removeRate(@Param('rating_id') ratingId: string) {
+  removeRate(@Param('rating_id') ratingId: number) {
     return this.ratingService.remove(ratingId);
   }
 }

@@ -27,7 +27,7 @@ export class RecipeService {
     return this.recipeModel.findAll();
   }
 
-  async findOne(id: string): Promise<ReadRecipeDto> {
+  async findOne(id: number): Promise<ReadRecipeDto> {
     return this.recipeModel.findOne({
       where: { id },
       include: [User, Comment, RecipeProduct],
@@ -47,7 +47,7 @@ export class RecipeService {
     });
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: number): Promise<void> {
     const recipe = await this.recipeModel.findOne({ where: { id } });
     await recipe.destroy();
   }

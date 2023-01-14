@@ -28,25 +28,25 @@ export class RatingService {
     return this.ratingModel.findAll();
   }
 
-  async findAllByUser(id: string): Promise<Rating[]> {
+  async findAllByUser(id: number): Promise<Rating[]> {
     return this.ratingModel.findAll({ where: { user_id: id } });
   }
 
-  async findAllByRecipe(id: string): Promise<Rating[]> {
+  async findAllByRecipe(id: number): Promise<Rating[]> {
     return this.ratingModel.findAll({ where: { recipe_id: id } });
   }
 
-  async findOne(id: string): Promise<Rating> {
+  async findOne(id: number): Promise<Rating> {
     return this.ratingModel.findByPk(id);
   }
 
-  async update(id: string, updateRatingDto: UpdateRatingDto): Promise<Rating> {
+  async update(id: number, updateRatingDto: UpdateRatingDto): Promise<Rating> {
     const rating = await this.ratingModel.findByPk(id);
 
     return await rating.update({ ...updateRatingDto });
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: number): Promise<void> {
     const rating = await this.ratingModel.findByPk(id);
 
     await rating.destroy();

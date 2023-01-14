@@ -24,7 +24,7 @@ export class RecipeStepService {
     return recipeStep;
   }
 
-  async updateContent(id: string, updateRecipeStepDto: UpdateRecipeStepDto): Promise<RecipeStep> {
+  async updateContent(id: number, updateRecipeStepDto: UpdateRecipeStepDto): Promise<RecipeStep> {
     const recipeStep = await this.recipeStepModel.findByPk(id);
     return await recipeStep.update({ ...updateRecipeStepDto });
   }
@@ -35,7 +35,7 @@ export class RecipeStepService {
     return await recipeStep.update({ img: imagePath });
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: number): Promise<void> {
     const favourite = await this.recipeStepModel.findByPk(id);
     return await favourite.destroy();
   }

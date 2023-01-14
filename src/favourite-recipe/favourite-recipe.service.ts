@@ -29,7 +29,7 @@ export class FavouriteRecipeService {
     });
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: number): Promise<void> {
     const favourite = await this.favouriteRecipeModel.findByPk(id);
 
     return await favourite.destroy();

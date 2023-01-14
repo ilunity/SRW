@@ -6,7 +6,6 @@ import { Product } from './product/entity/product.entity';
 import { RecipeProduct } from './recipe-product/entity/recipe-product.entity';
 import { FavouriteRecipe } from './favourite-recipe/entity/favourite-recipe.entity';
 import { Rating } from './rating/entity/rating.entity';
-import { ProductMeasurement } from './product-measurement/entity/product-measurement.entity';
 import { RecipeStep } from './recipe-step/entity/recipe-step.entity';
 import { Filter } from './filter/entity/filter.entity';
 import { FilterType } from './filter-type/entity/filter-type.entity';
@@ -22,7 +21,6 @@ export const DbConnection = SequelizeModule.forRoot({
   models: [
     User,
     Comment,
-    ProductMeasurement,
     Product,
     RecipeProduct,
     FilterType,

@@ -2,6 +2,7 @@ import { BelongsTo, Column, ForeignKey, Model, Table } from 'sequelize-typescrip
 import { Recipe } from '../../recipe/entity/recipe.entity';
 import { ApiHideProperty } from '@nestjs/swagger';
 import { Product } from '../../product/entity/product.entity';
+import { MeasurementType } from './mesurement-types';
 
 @Table({
   timestamps: false,
@@ -11,7 +12,7 @@ export class RecipeProduct extends Model {
   id: number;
 
   @Column({ allowNull: false })
-  measurement_type: string;
+  measurement_type: MeasurementType;
 
   @Column({ allowNull: false })
   measurement_value: string;

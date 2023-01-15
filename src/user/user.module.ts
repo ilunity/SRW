@@ -15,5 +15,6 @@ import { CommentService } from '../comment/comment.service';
   imports: [SequelizeModule.forFeature([User, Comment, Recipe, FavouriteRecipe, Rating])],
   controllers: [UserController],
   providers: [UserService, CommentService, FavouriteRecipeService, RatingService],
+  exports: [UserService],
 })
 export class UserModule {}

@@ -1,17 +1,21 @@
-import { IsDefined, IsInt, IsString } from 'class-validator';
+import { IsDefined, IsNumberString, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateRecipeDto {
+  @IsDefined()
+  @IsNumberString()
+  readonly user_id: number;
+
   @IsDefined()
   @IsString()
   readonly title: string;
 
   @IsDefined()
-  @IsInt()
+  @IsNumberString()
   readonly time: number;
 
   @IsDefined()
-  @IsInt()
+  @IsNumberString()
   readonly servings_number: number;
 
   @IsDefined()

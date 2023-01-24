@@ -4,12 +4,13 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { RecipeService } from './recipe.service';
-import { CreateRecipeDto, ReadRecipeDto } from './dto';
+import { CreateRecipeDto, ReadRecipeDto, ReadRecipeIdsDto } from './dto';
 import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { Recipe } from './entity/recipe.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -23,6 +24,7 @@ import { RecipeFilterService } from '../recipe-filter/recipe-filter.service';
 import { RecipeProductService } from '../recipe-product/recipe-product.service';
 import { CreateRecipeProductDto } from '../recipe-product/dto';
 import { RecipeProduct } from '../recipe-product/entity/recipe-product.entity';
+import { UpdateRecipeStatusDto } from './dto/update-recipe-status.dto';
 
 @ApiTags('Recipe')
 @Controller('recipe')
@@ -37,12 +39,18 @@ export class RecipeController {
   /** Creates the Recipe record */
   @ApiConsumes('multipart/form-data')
   @Post()
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('img'))
   create(
     @Body() createRecipeDto: CreateRecipeDto,
     @UploadedFile() img: Express.Multer.File,
   ): Promise<Recipe> {
     return this.recipeService.create(createRecipeDto, img);
+  }
+
+  /** Returns a list of ids of "shared" recipes */
+  @Get('ids')
+  findIds(): Promise<ReadRecipeIdsDto[]> {
+    return this.recipeService.findAllIds();
   }
 
   /** Returns a list of recipes */
@@ -57,6 +65,11 @@ export class RecipeController {
     return this.recipeService.findOne(recipeId);
   }
 
+  @Patch('status')
+  updateStatus(@Body() updateRecipeStatusDto: UpdateRecipeStatusDto): Promise<Recipe> {
+    return this.recipeService.updateStatus(updateRecipeStatusDto);
+  }
+
   /** Deletes the recipe */
   @Delete(':recipe_id')
   remove(@Param('recipe_id') recipeId: number) {
@@ -68,7 +81,7 @@ export class RecipeController {
   /** Added the recipe step */
   @ApiConsumes('multipart/form-data')
   @Post('step')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('img'))
   addStep(
     @Body() createRecipeStepDto: CreateRecipeStepDto,
     @UploadedFile() img: Express.Multer.File,

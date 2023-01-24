@@ -64,4 +64,8 @@ export class Recipe extends Model {
   @ApiHideProperty()
   @HasMany(() => RecipeStep)
   steps: RecipeStep[];
+
+  // Uses to correct displaying types for aggregation
+  @ApiHideProperty()
+  avg_rating: number;
 }

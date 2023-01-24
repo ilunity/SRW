@@ -7,5 +7,5 @@ export class CreateProductDto {
   name: string;
 
   @ApiProperty({ type: 'string', format: 'binary', required: true })
-  file: Express.Multer.File;
+  img: Express.Multer.File;
 }

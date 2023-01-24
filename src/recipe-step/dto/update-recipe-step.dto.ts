@@ -9,6 +9,6 @@ export class UpdateRecipeStepDto {
   @IsString()
   readonly content?: string;
 
-  @ApiProperty({ type: 'string', format: 'binary', required: true })
+  @ApiProperty({ type: 'string', format: 'binary', required: false })
   img?: Express.Multer.File;
 }

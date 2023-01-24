@@ -16,7 +16,7 @@ export class RecipeFilter extends Model {
 
   @ApiHideProperty()
   @BelongsTo(() => Filter)
-  filer: Filter;
+  filter: Filter;
 
   @ForeignKey(() => Recipe)
   @Column

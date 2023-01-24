@@ -17,6 +17,7 @@ export class RecipeStepService {
     img: Express.Multer.File,
   ): Promise<RecipeStep> {
     const imagePath = this.fileService.createFile(FileType.IMAGE, img);
+
     const recipeStep = await this.recipeStepModel.create({
       ...createFavouriteRecipeDto,
       img: imagePath,

@@ -20,7 +20,6 @@ module.exports = {
     'no-console': 'error',
     'no-alert': 'error',
     curly: 'error',
-    // 'no-empty-function': 'error',
     'no-eval': 'error',
     'no-magic-numbers': 'error',
     '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
@@ -32,5 +31,11 @@ module.exports = {
     'jsx-quotes': ['error', 'prefer-double'],
     'prefer-const': 'error',
     radix: 'error',
+    'prettier/prettier': [
+      'error',
+      {
+        endOfLine: 'auto',
+      },
+    ],
   },
 };

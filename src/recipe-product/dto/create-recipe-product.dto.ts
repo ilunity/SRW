@@ -1,4 +1,4 @@
-import { IsDefined, IsEnum, IsInt, IsString } from 'class-validator';
+import { IsDefined, IsEnum, IsInt } from 'class-validator';
 import { MEASUREMENT_TYPE } from '../entity/mesurement-types';
 
 export class CreateRecipeProductDto {
@@ -15,6 +15,6 @@ export class CreateRecipeProductDto {
   readonly measurement_type: MEASUREMENT_TYPE;
 
   @IsDefined()
-  @IsString()
-  readonly measurement_value: string;
+  @IsInt()
+  readonly measurement_value: number;
 }

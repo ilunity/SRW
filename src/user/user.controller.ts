@@ -1,6 +1,16 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { UserService } from './user.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { User } from './entity/user.entity';
 import { CreateUserDto, UpdateUserDto } from './dto';
 import { CreateCommentDto, ReadCommentDto } from '../comment/dto';
@@ -12,6 +22,8 @@ import { CreateRatingDto, UpdateRatingDto } from '../rating/dto';
 import { Rating } from '../rating/entity/rating.entity';
 import { RatingService } from '../rating/rating.service';
 import { CommentService } from '../comment/comment.service';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Express } from 'express';
 
 @ApiTags('User')
 @Controller('user')
@@ -24,9 +36,14 @@ export class UserController {
   ) {}
 
   /** Creates the User record */
+  @ApiConsumes('multipart/form-data')
   @Post()
-  create(@Body() createUserDto: CreateUserDto): Promise<User> {
-    return this.userService.create(createUserDto);
+  @UseInterceptors(FileInterceptor('avatar'))
+  create(
+    @Body() createUserDto: CreateUserDto,
+    @UploadedFile() avatar: Express.Multer.File,
+  ): Promise<User> {
+    return this.userService.create(createUserDto, avatar);
   }
 
   /** Returns list of all users */
@@ -48,9 +65,9 @@ export class UserController {
   }
 
   /** Updates the user */
-  @Patch(':user_id')
-  update(@Param('user_id') userId: number, @Body() updateUserDto: UpdateUserDto): Promise<User> {
-    return this.userService.update(userId, updateUserDto);
+  @Patch()
+  update(@Body() updateUserDto: UpdateUserDto): Promise<User> {
+    return this.userService.update(updateUserDto);
   }
 
   // ---------- comments ----------

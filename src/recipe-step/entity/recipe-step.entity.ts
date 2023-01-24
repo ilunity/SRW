@@ -1,6 +1,7 @@
 import { BelongsTo, Column, ForeignKey, Model, Table } from 'sequelize-typescript';
 import { ApiHideProperty } from '@nestjs/swagger';
 import { Recipe } from '../../recipe/entity/recipe.entity';
+import { DataTypes } from 'sequelize';
 
 @Table({ timestamps: false })
 export class RecipeStep extends Model {
@@ -18,6 +19,6 @@ export class RecipeStep extends Model {
   @Column({ allowNull: true, defaultValue: null })
   img: string;
 
-  @Column({ allowNull: false })
+  @Column({ type: DataTypes.TEXT, allowNull: false })
   content: string;
 }

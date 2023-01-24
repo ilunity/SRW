@@ -15,9 +15,8 @@ export class RecipeProduct extends Model {
   measurement_type: MEASUREMENT_TYPE;
 
   @Column({ allowNull: false })
-  measurement_value: string;
+  measurement_value: number;
 
-  @ApiHideProperty()
   @ForeignKey(() => Recipe)
   @Column
   recipe_id: number;
@@ -30,6 +29,7 @@ export class RecipeProduct extends Model {
   @Column
   product_id: number;
 
+  @ApiHideProperty()
   @BelongsTo(() => Product)
   product: Product;
 }

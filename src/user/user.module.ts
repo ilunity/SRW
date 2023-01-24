@@ -10,10 +10,15 @@ import { RatingService } from '../rating/rating.service';
 import { Rating } from '../rating/entity/rating.entity';
 import { Recipe } from '../recipe/entity/recipe.entity';
 import { CommentService } from '../comment/comment.service';
+import { FileModule } from '../file/file.module';
 
 @Module({
-  imports: [SequelizeModule.forFeature([User, Comment, Recipe, FavouriteRecipe, Rating])],
+  imports: [
+    SequelizeModule.forFeature([User, Comment, Recipe, FavouriteRecipe, Rating]),
+    FileModule,
+  ],
   controllers: [UserController],
   providers: [UserService, CommentService, FavouriteRecipeService, RatingService],
+  exports: [UserService],
 })
 export class UserModule {}

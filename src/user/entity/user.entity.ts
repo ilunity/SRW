@@ -22,6 +22,9 @@ export class User extends Model {
   @Column({ allowNull: false, defaultValue: USER_ROLE.USER })
   role: USER_ROLE;
 
+  @Column
+  avatar: string;
+
   @ApiHideProperty()
   @HasMany(() => Recipe)
   recipes: Recipe[];

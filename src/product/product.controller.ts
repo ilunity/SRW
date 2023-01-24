@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { ProductService } from './product.service';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -14,11 +14,17 @@ export class ProductController {
   /** Creates the Product record */
   @ApiConsumes('multipart/form-data')
   @Post()
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('img'))
   create(
     @Body() productDto: CreateProductDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile() img: Express.Multer.File,
   ): Promise<Product> {
-    return this.productService.create(productDto, file);
+    return this.productService.create(productDto, img);
+  }
+
+  /** Returns the list of products */
+  @Get()
+  findAll(): Promise<Product[]> {
+    return this.productService.findAll();
   }
 }

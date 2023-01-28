@@ -1,4 +1,5 @@
 import { IsDefined, IsEmail, IsString } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDto {
   @IsDefined()
@@ -8,4 +9,7 @@ export class CreateUserDto {
   @IsDefined()
   @IsEmail()
   readonly email: string;
+
+  @ApiProperty({ type: 'string', format: 'binary', required: false })
+  readonly avatar: Express.Multer.File;
 }

@@ -1,4 +1,5 @@
 export enum MEASUREMENT_TYPE {
   WEIGHT = 'WEIGHT',
   VOLUME = 'VOLUME',
+  PINCH = 'PINCH',
 }

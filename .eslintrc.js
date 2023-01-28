@@ -32,5 +32,11 @@ module.exports = {
     'jsx-quotes': ['error', 'prefer-double'],
     'prefer-const': 'error',
     radix: 'error',
+    'prettier/prettier': [
+      'error',
+      {
+        endOfLine: 'auto',
+      },
+    ],
   },
 };

@@ -14,7 +14,12 @@ export class ProductService {
 
   async create(dto: CreateProductDto, img: Express.Multer.File) {
     const imagePath = this.fileService.createFile(FileType.IMAGE, img);
+
     const product = await this.productModel.create({ ...dto, img: imagePath });
     return product;
+  }
+
+  async findAll() {
+    return await this.productModel.findAll();
   }
 }

@@ -31,13 +31,25 @@ export class UserService {
     });
   }
 
+  async findByEmail(email: string): Promise<User> {
+    return await this.userModel.findOne({
+      where: { email },
+    });
+  }
+
   async remove(id: number): Promise<void> {
     const user = await this.findOne(id);
     await user.destroy();
   }
 
-  async update(updateDto: UpdateUserDto): Promise<User> {
+  async update(updateDto: UpdateUserDto, avatar: Express.Multer.File): Promise<User> {
     const user = await this.userModel.findByPk(updateDto.id);
-    return await user.update({ ...updateDto });
+
+    let imagePath;
+    if (avatar) {
+      imagePath = this.fileService.createFile(FileType.IMAGE, avatar);
+    }
+
+    return await user.update({ ...updateDto, avatar: imagePath });
   }
 }

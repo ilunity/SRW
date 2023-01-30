@@ -65,9 +65,14 @@ export class UserController {
   }
 
   /** Updates the user */
+  @ApiConsumes('multipart/form-data')
   @Patch()
-  update(@Body() updateUserDto: UpdateUserDto): Promise<User> {
-    return this.userService.update(updateUserDto);
+  @UseInterceptors(FileInterceptor('avatar'))
+  update(
+    @Body() updateUserDto: UpdateUserDto,
+    @UploadedFile() avatar: Express.Multer.File,
+  ): Promise<User> {
+    return this.userService.update(updateUserDto, avatar);
   }
 
   // ---------- comments ----------

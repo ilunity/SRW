@@ -42,8 +42,14 @@ export class UserService {
     await user.destroy();
   }
 
-  async update(updateDto: UpdateUserDto): Promise<User> {
+  async update(updateDto: UpdateUserDto, avatar: Express.Multer.File): Promise<User> {
     const user = await this.userModel.findByPk(updateDto.id);
-    return await user.update({ ...updateDto });
+
+    let imagePath;
+    if (avatar) {
+      imagePath = this.fileService.createFile(FileType.IMAGE, avatar);
+    }
+
+    return await user.update({ ...updateDto, avatar: imagePath });
   }
 }

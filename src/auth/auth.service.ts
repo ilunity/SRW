@@ -1,7 +1,9 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
-import { LoginDto } from './dto';
+import { LoginDto, ReadProfileDto } from './dto';
+import { ITokenPayload } from './jwt.strategy';
+import { getMailOptions, transporter } from '../utils';
 
 @Injectable()
 export class AuthService {
@@ -15,8 +17,22 @@ export class AuthService {
     }
 
     const payload = { username: user.username, sub: user.id, role: user.role };
+    const token = this.jwtService.sign(payload);
+
+    const mailOptions = getMailOptions({ token, email: user.email, username: user.username });
+    transporter.sendMail(mailOptions, (error) => {
+      if (error) {
+        throw new InternalServerErrorException('Не удалось отправить письмо на почту');
+      }
+    });
+  }
+
+  async getProfile(payload: ITokenPayload): Promise<ReadProfileDto> {
+    const user = await this.userService.findOne(payload.id);
+
     return {
-      access_token: this.jwtService.sign(payload),
+      ...payload,
+      avatar: user.avatar,
     };
   }
 }

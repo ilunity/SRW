@@ -10,7 +10,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { RecipeService } from './recipe.service';
-import { CreateRecipeDto, ReadRecipeDto, ReadRecipeIdsDto } from './dto';
+import { CreateRecipeDto, ReadRecipeDto, ReadRecipeIdsDto, UpdateRecipeStatusDto } from './dto';
 import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { Recipe } from './entity/recipe.entity';
 import { FileInterceptor } from '@nestjs/platform-express';

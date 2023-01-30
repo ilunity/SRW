@@ -24,6 +24,7 @@ import { RecipeFilterService } from '../recipe-filter/recipe-filter.service';
 import { RecipeProductService } from '../recipe-product/recipe-product.service';
 import { CreateRecipeProductDto } from '../recipe-product/dto';
 import { RecipeProduct } from '../recipe-product/entity/recipe-product.entity';
+import { UpdateRecipeStatusDto } from './dto/update-recipe-status.dto';
 
 @ApiTags('Recipe')
 @Controller('recipe')

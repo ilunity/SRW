@@ -46,6 +46,50 @@ export class RecipeService {
     return this.recipeModel.findAll();
   }
 
+  async findAllShared(): Promise<ReadRecipeDto[]> {
+    return this.recipeModel.findAll({
+      where: { status: RECIPE_STATUS.SHARED },
+      include: [
+        User,
+        Comment,
+        RecipeStep,
+        {
+          model: RecipeFilter,
+          include: [Filter],
+          attributes: {
+            exclude: ['recipe_id', 'filter_id'],
+          },
+        },
+        {
+          model: RecipeProduct,
+          include: [Product],
+          attributes: {
+            exclude: ['recipe_id', 'product_id'],
+          },
+        },
+        {
+          model: Rating,
+          as: 'rating',
+          attributes: [],
+        },
+      ],
+      attributes: {
+        include: [[fn('AVG', col('rating.score')), 'avg_rating']],
+        exclude: ['user_id'],
+      },
+      group: [
+        'Recipe.id',
+        'user.id',
+        'comments.id',
+        'products.id',
+        'steps.id',
+        'filters.id',
+        'products.product.id',
+        'filters.filter.id',
+      ],
+    });
+  }
+
   async findAllIds(): Promise<ReadRecipeIdsDto[]> {
     return this.recipeModel.findAll({
       where: {

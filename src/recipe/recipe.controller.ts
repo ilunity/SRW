@@ -24,7 +24,6 @@ import { RecipeFilterService } from '../recipe-filter/recipe-filter.service';
 import { RecipeProductService } from '../recipe-product/recipe-product.service';
 import { CreateRecipeProductDto } from '../recipe-product/dto';
 import { RecipeProduct } from '../recipe-product/entity/recipe-product.entity';
-import { UpdateRecipeStatusDto } from './dto/update-recipe-status.dto';
 
 @ApiTags('Recipe')
 @Controller('recipe')
@@ -55,8 +54,14 @@ export class RecipeController {
 
   /** Returns a list of recipes */
   @Get()
-  findAll(): Promise<Recipe[]> {
+  findAll(): Promise<ReadRecipeDto[]> {
     return this.recipeService.findAll();
+  }
+
+  /** Returns a list of 'SHARED' recipes */
+  @Get('shared')
+  findAllShared(): Promise<ReadRecipeDto[]> {
+    return this.recipeService.findAllShared();
   }
 
   /** Returns the Recipe */

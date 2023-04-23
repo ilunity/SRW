@@ -5,8 +5,15 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 
+const CLIENT_HOST = process.env.CLIENT_HOST;
+
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    cors: {
+      origin: CLIENT_HOST,
+      credentials: true,
+    },
+  });
 
   const config = new DocumentBuilder()
     .setTitle('Recipe open API')

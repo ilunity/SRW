@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '../user/user.service';
 import { LoginDto, ReadProfileDto } from './dto';
@@ -20,11 +20,12 @@ export class AuthService {
     const token = this.jwtService.sign(payload);
 
     const mailOptions = getMailOptions({ token, email: user.email, username: user.username });
-    transporter.sendMail(mailOptions, (error) => {
-      if (error) {
-        throw new InternalServerErrorException('Не удалось отправить письмо на почту');
-      }
-    });
+
+    try {
+      await transporter.sendMail(mailOptions);
+    } catch (e) {
+      throw new NotFoundException('Не удалось отправить ссылку на почту.');
+    }
   }
 
   async getProfile(payload: ITokenPayload): Promise<ReadProfileDto> {

@@ -18,5 +18,5 @@ export class Filter extends Model {
 
   @ApiHideProperty()
   @BelongsTo(() => FilterType)
-  user: FilterType;
+  filterType: FilterType;
 }

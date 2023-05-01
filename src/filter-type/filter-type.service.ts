@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { FilterType } from './entity/filter-type.entity';
 import { CreateFilterTypeDto } from './dto';
+import { ReadFilterDto } from '../filter/dto';
+import { Filter } from '../filter/entity/filter.entity';
 
 @Injectable()
 export class FilterTypeService {
@@ -14,8 +16,10 @@ export class FilterTypeService {
     return await this.filterTypeModel.create({ ...createFilterTypeDto });
   }
 
-  async findAll() {
-    return await this.filterTypeModel.findAll();
+  async findAll(): Promise<ReadFilterDto[]> {
+    return await this.filterTypeModel.findAll({
+      include: [Filter],
+    });
   }
 
   async update(id: number, updateFilterTypeDto: CreateFilterTypeDto) {

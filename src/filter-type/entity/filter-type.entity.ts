@@ -14,5 +14,5 @@ export class FilterType extends Model {
 
   @ApiHideProperty()
   @HasMany(() => Filter)
-  steps: Filter[];
+  filters: Filter[];
 }

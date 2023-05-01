@@ -1,10 +1,10 @@
 import { ApiTags } from '@nestjs/swagger';
 import { FilterService } from './filter.service';
 import { FilterTypeService } from '../filter-type/filter-type.service';
-import { Body, Controller, Delete, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
 import { CreateFilterTypeDto } from '../filter-type/dto';
 import { FilterType } from '../filter-type/entity/filter-type.entity';
-import { CreateFilterDto } from './dto';
+import { CreateFilterDto, ReadFilterDto } from './dto';
 import { Filter } from './entity/filter.entity';
 
 @ApiTags('Filter')
@@ -16,6 +16,12 @@ export class FilterController {
   @Post()
   create(@Body() createFilterDto: CreateFilterDto): Promise<Filter> {
     return this.filterService.create(createFilterDto);
+  }
+
+  /** Returns the recipes filters */
+  @Get()
+  getFilters(): Promise<ReadFilterDto[]> {
+    return this.filterTypeService.findAll();
   }
 
   /** Deletes the filter */

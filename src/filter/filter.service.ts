@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Filter } from './entity/filter.entity';
 import { CreateFilterTypeDto } from '../filter-type/dto';
 import { CreateFilterDto } from './dto';
-import { FilterType } from '../filter-type/entity/filter-type.entity';
 
 @Injectable()
 export class FilterService {
@@ -17,12 +16,7 @@ export class FilterService {
   }
 
   async findAll() {
-    return await this.filterModel.findAll({
-      include: [FilterType],
-      attributes: {
-        exclude: ['filter_type_id'],
-      },
-    });
+    return await this.filterModel.findAll();
   }
 
   async update(id: number, updateFilterDto: CreateFilterTypeDto) {

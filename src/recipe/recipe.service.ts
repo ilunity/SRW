@@ -14,6 +14,7 @@ import { col, fn } from 'sequelize';
 import { Product } from '../product/entity/product.entity';
 import { Filter } from '../filter/entity/filter.entity';
 import { UserService } from '../user/user.service';
+import { FavouriteRecipe } from '../favourite-recipe/entity/favourite-recipe.entity';
 
 @Injectable()
 export class RecipeService {
@@ -72,9 +73,17 @@ export class RecipeService {
           as: 'rating',
           attributes: [],
         },
+        {
+          model: FavouriteRecipe,
+          as: 'favourite_recipes',
+          attributes: [],
+        },
       ],
       attributes: {
-        include: [[fn('AVG', col('rating.score')), 'avg_rating']],
+        include: [
+          [fn('AVG', col('rating.score')), 'avg_rating'],
+          [fn('COUNT', col('favourite_recipes.id')), 'favourites'],
+        ],
         exclude: ['user_id'],
       },
       group: [
@@ -125,9 +134,17 @@ export class RecipeService {
           as: 'rating',
           attributes: [],
         },
+        {
+          model: FavouriteRecipe,
+          as: 'favourite_recipes',
+          attributes: [],
+        },
       ],
       attributes: {
-        include: [[fn('AVG', col('rating.score')), 'avg_rating']],
+        include: [
+          [fn('AVG', col('rating.score')), 'avg_rating'],
+          [fn('COUNT', col('favourite_recipes.id')), 'favourites'],
+        ],
         exclude: ['user_id'],
       },
       group: [

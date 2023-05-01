@@ -68,4 +68,7 @@ export class Recipe extends Model {
   // Uses to correct displaying types for aggregation
   @ApiHideProperty()
   avg_rating: number;
+
+  @ApiHideProperty()
+  favourites: number;
 }

@@ -7,7 +7,6 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 
-
 const CLIENT_HOST = process.env.CLIENT_HOST;
 
 async function bootstrap() {

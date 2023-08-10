@@ -30,7 +30,7 @@ import { RecipeFilterService } from '../recipe-filter/recipe-filter.service';
 import { RecipeProductService } from '../recipe-product/recipe-product.service';
 import { CreateRecipeProductDto } from '../recipe-product/dto';
 import { RecipeProduct } from '../recipe-product/entity/recipe-product.entity';
-import { GetSharedRecipe } from './dto/get-shared-recipe.dto';
+import { GetSharedRecipe } from './dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RECIPE_STATUS } from './entity/recipe-statuses';
 import { USER_ROLE } from '../user/entity/user-roles';

@@ -12,22 +12,29 @@ export class RecipeStepService {
     private fileService: FileService,
   ) {}
 
-  async create(
-    createFavouriteRecipeDto: CreateRecipeStepDto,
-    img: Express.Multer.File,
-  ): Promise<RecipeStep> {
-    const imagePath = this.fileService.createFile(FileType.IMAGE, img);
+  async create(createFavouriteRecipeDto: CreateRecipeStepDto): Promise<RecipeStep> {
+    const imagePath = this.fileService.createFromBase64(createFavouriteRecipeDto.img);
 
     const recipeStep = await this.recipeStepModel.create({
       ...createFavouriteRecipeDto,
       img: imagePath,
     });
+
     return recipeStep;
   }
 
   async updateContent(id: number, updateRecipeStepDto: UpdateRecipeStepDto): Promise<RecipeStep> {
     const recipeStep = await this.recipeStepModel.findByPk(id);
-    return await recipeStep.update({ ...updateRecipeStepDto });
+
+    let imagePath;
+    if (updateRecipeStepDto.img) {
+      imagePath = this.fileService.createFromBase64(updateRecipeStepDto.img);
+    }
+
+    return await recipeStep.update({
+      ...updateRecipeStepDto,
+      img: imagePath,
+    });
   }
 
   async updateImg(id: number, img: Express.Multer.File): Promise<RecipeStep> {

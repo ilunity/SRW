@@ -1,5 +1,4 @@
-import { IsDefined, IsNumberString, IsString } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsDefined, IsNumberString, IsOptional, IsString } from 'class-validator';
 
 export class CreateRecipeStepDto {
   @IsDefined()
@@ -10,6 +9,7 @@ export class CreateRecipeStepDto {
   @IsString()
   readonly content: string;
 
-  @ApiProperty({ type: 'string', format: 'binary', required: false })
-  readonly img: Express.Multer.File;
+  @IsOptional()
+  @IsString()
+  readonly img?: string;
 }

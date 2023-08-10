@@ -2,19 +2,25 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   Patch,
   Post,
-  UploadedFile,
-  UseInterceptors,
+  Request,
+  UseGuards,
 } from '@nestjs/common';
 import { RecipeService } from './recipe.service';
-import { CreateRecipeDto, ReadRecipeDto, ReadRecipeIdsDto, UpdateRecipeStatusDto } from './dto';
-import { ApiConsumes, ApiTags } from '@nestjs/swagger';
+import {
+  CreateRecipeCombinedDto,
+  CreateRecipeDto,
+  ReadRecipeDto,
+  ReadRecipeIdsDto,
+  ReadRecipeShortDto,
+  UpdateRecipeStatusDto,
+} from './dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Recipe } from './entity/recipe.entity';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { Express } from 'express';
 import { RecipeStepService } from '../recipe-step/recipe-step.service';
 import { CreateRecipeStepDto } from '../recipe-step/dto';
 import { RecipeStep } from '../recipe-step/entity/recipe-step.entity';
@@ -24,6 +30,10 @@ import { RecipeFilterService } from '../recipe-filter/recipe-filter.service';
 import { RecipeProductService } from '../recipe-product/recipe-product.service';
 import { CreateRecipeProductDto } from '../recipe-product/dto';
 import { RecipeProduct } from '../recipe-product/entity/recipe-product.entity';
+import { GetSharedRecipe } from './dto/get-shared-recipe.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RECIPE_STATUS } from './entity/recipe-statuses';
+import { USER_ROLE } from '../user/entity/user-roles';
 
 @ApiTags('Recipe')
 @Controller('recipe')
@@ -36,14 +46,22 @@ export class RecipeController {
   ) {}
 
   /** Creates the Recipe record */
-  @ApiConsumes('multipart/form-data')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Post()
-  @UseInterceptors(FileInterceptor('img'))
-  create(
-    @Body() createRecipeDto: CreateRecipeDto,
-    @UploadedFile() img: Express.Multer.File,
+  create(@Request() req, @Body() createRecipeDto: CreateRecipeDto): Promise<Recipe> {
+    return this.recipeService.create(req.user, createRecipeDto);
+  }
+
+  /** Creates the Recipe, Products and Steps for it */
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post('combined')
+  createCombined(
+    @Request() req,
+    @Body() createRecipeCombinedDto: CreateRecipeCombinedDto,
   ): Promise<Recipe> {
-    return this.recipeService.create(createRecipeDto, img);
+    return this.recipeService.createCombined(req.user, createRecipeCombinedDto);
   }
 
   /** Returns a list of ids of "shared" recipes */
@@ -59,9 +77,29 @@ export class RecipeController {
   }
 
   /** Returns a list of 'SHARED' recipes */
-  @Get('shared')
-  findAllShared(): Promise<ReadRecipeDto[]> {
-    return this.recipeService.findAllShared();
+  @Post('shared')
+  findAllShared(@Body() getSharedRecipe: GetSharedRecipe): Promise<ReadRecipeDto[]> {
+    return this.recipeService.find(RECIPE_STATUS.SHARED, getSharedRecipe.filters_keys);
+  }
+
+  /** Returns a list of 'CREATION' recipes */
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post('created')
+  findAllCreated(@Request() req): Promise<ReadRecipeDto[]> {
+    if (req.user.role !== USER_ROLE.ADMIN) {
+      throw new ForbiddenException();
+    }
+
+    return this.recipeService.find(RECIPE_STATUS.CREATION);
+  }
+
+  /** Returns a list of user recipes */
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('my')
+  findMyRecipes(@Request() req): Promise<ReadRecipeShortDto[]> {
+    return this.recipeService.findMy(req.user);
   }
 
   /** Returns the Recipe */
@@ -70,6 +108,7 @@ export class RecipeController {
     return this.recipeService.findOne(recipeId);
   }
 
+  /** Updated status of the Recipe */
   @Patch('status')
   updateStatus(@Body() updateRecipeStatusDto: UpdateRecipeStatusDto): Promise<Recipe> {
     return this.recipeService.updateStatus(updateRecipeStatusDto);
@@ -84,14 +123,9 @@ export class RecipeController {
   // ---------- steps ----------
 
   /** Added the recipe step */
-  @ApiConsumes('multipart/form-data')
   @Post('step')
-  @UseInterceptors(FileInterceptor('img'))
-  addStep(
-    @Body() createRecipeStepDto: CreateRecipeStepDto,
-    @UploadedFile() img: Express.Multer.File,
-  ): Promise<RecipeStep> {
-    return this.recipeStepService.create(createRecipeStepDto, img);
+  addStep(@Body() createRecipeStepDto: CreateRecipeStepDto): Promise<RecipeStep> {
+    return this.recipeStepService.create(createRecipeStepDto);
   }
 
   /** Deletes the recipe step */

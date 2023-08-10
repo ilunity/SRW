@@ -1,20 +1,33 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Recipe } from './entity/recipe.entity';
-import { CreateRecipeDto, ReadRecipeDto, ReadRecipeIdsDto, UpdateRecipeStatusDto } from './dto';
+import {
+  CreateRecipeCombinedDto,
+  CreateRecipeDto,
+  ReadRecipeDto,
+  ReadRecipeIdsDto,
+  ReadRecipeShortDto,
+  UpdateRecipeStatusDto,
+} from './dto';
 import { User } from '../user/entity/user.entity';
 import { Comment } from '../comment/entity/comment.entity';
-import { FileService, FileType } from '../file/file.service';
+import { FileService } from '../file/file.service';
 import { RecipeProduct } from '../recipe-product/entity/recipe-product.entity';
 import { RECIPE_STATUS } from './entity/recipe-statuses';
 import { RecipeStep } from '../recipe-step/entity/recipe-step.entity';
 import { RecipeFilter } from '../recipe-filter/entity/recipe-filter.entity';
 import { Rating } from '../rating/entity/rating.entity';
-import { col, fn } from 'sequelize';
+import { col, fn, Op, WhereOptions } from 'sequelize';
 import { Product } from '../product/entity/product.entity';
-import { Filter } from '../filter/entity/filter.entity';
 import { UserService } from '../user/user.service';
 import { FavouriteRecipe } from '../favourite-recipe/entity/favourite-recipe.entity';
+import { NestedFilter } from '../nested-filter/entity/nested-filter.entity';
+import { Sequelize } from 'sequelize-typescript';
+import { FilterKeys } from '../nested-filter/dto/get-filter.dto';
+import { ITokenPayload } from '../auth/jwt.strategy';
+import { RecipeProductService } from '../recipe-product/recipe-product.service';
+import { RecipeStepService } from '../recipe-step/recipe-step.service';
+import { RecipeFilterService } from '../recipe-filter/recipe-filter.service';
 
 @Injectable()
 export class RecipeService {
@@ -27,19 +40,38 @@ export class RecipeService {
     private recipeFilterModel: typeof RecipeFilter,
     @InjectModel(RecipeProduct)
     private recipeProductModel: typeof RecipeProduct,
+    @InjectModel(NestedFilter)
+    private nestedFilterModel: typeof NestedFilter,
+    private sequelize: Sequelize,
     private userService: UserService,
     private fileService: FileService,
+    private recipeProductService: RecipeProductService,
+    private recipeStepService: RecipeStepService,
+    private recipeFilterService: RecipeFilterService,
   ) {}
 
-  async create(dto: CreateRecipeDto, img: Express.Multer.File): Promise<Recipe> {
-    const imagePath = this.fileService.createFile(FileType.IMAGE, img);
+  async create(user: ITokenPayload, dto: CreateRecipeDto): Promise<Recipe> {
+    const imagePath = this.fileService.createFromBase64(dto.img);
 
-    const user = await this.userService.findOne(dto.user_id);
-    if (!user) {
-      throw new NotFoundException('Пользователь не найден');
+    const recipe = await this.recipeModel.create({ ...dto, user_id: user.id, img: imagePath });
+    return recipe;
+  }
+
+  async createCombined(user: ITokenPayload, dto: CreateRecipeCombinedDto): Promise<Recipe> {
+    const recipe = await this.create(user, dto.description);
+
+    for (const ingredient of dto.ingredients) {
+      this.recipeProductService.create({ ...ingredient, recipe_id: recipe.id });
     }
 
-    const recipe = await this.recipeModel.create({ ...dto, img: imagePath });
+    for (const step of dto.steps) {
+      this.recipeStepService.create({ ...step, recipe_id: recipe.id });
+    }
+
+    for (const filter of dto.filters) {
+      this.recipeFilterService.create({ ...filter, recipe_id: recipe.id });
+    }
+
     return recipe;
   }
 
@@ -47,16 +79,44 @@ export class RecipeService {
     return this.recipeModel.findAll();
   }
 
-  async findAllShared(): Promise<ReadRecipeDto[]> {
+  async findAllIds(): Promise<ReadRecipeIdsDto[]> {
     return this.recipeModel.findAll({
-      where: { status: RECIPE_STATUS.SHARED },
+      where: {
+        status: RECIPE_STATUS.SHARED,
+      },
+      attributes: ['id'],
+    });
+  }
+
+  async find(status: RECIPE_STATUS, filters: FilterKeys[] = []): Promise<ReadRecipeDto[]> {
+    const clause: WhereOptions = {
+      status,
+    };
+
+    if (filters !== undefined) {
+      clause['$filters.filter.left_key$'] = {
+        [Op.and]: filters.map(({ left }) => ({ [Op.gte]: left })),
+      };
+      clause['$filters.filter.right_key$'] = {
+        [Op.and]: filters?.map(({ right }) => ({ [Op.lte]: right })),
+      };
+    }
+
+    return this.recipeModel.findAll({
+      where: clause,
       include: [
         User,
         Comment,
         RecipeStep,
         {
           model: RecipeFilter,
-          include: [Filter],
+          as: 'filters',
+          include: [
+            {
+              model: NestedFilter,
+              as: 'filter',
+            },
+          ],
           attributes: {
             exclude: ['recipe_id', 'filter_id'],
           },
@@ -99,12 +159,37 @@ export class RecipeService {
     });
   }
 
-  async findAllIds(): Promise<ReadRecipeIdsDto[]> {
+  async findMy(payload: ITokenPayload): Promise<ReadRecipeShortDto[]> {
+    const user = await this.userService.findOne(payload.id);
+
     return this.recipeModel.findAll({
-      where: {
-        status: RECIPE_STATUS.SHARED,
+      where: { user_id: user.id },
+      include: [
+        {
+          model: Comment,
+          as: 'comments',
+          attributes: [],
+        },
+        {
+          model: Rating,
+          as: 'rating',
+          attributes: [],
+        },
+        {
+          model: FavouriteRecipe,
+          as: 'favourite_recipes',
+          attributes: [],
+        },
+      ],
+      attributes: {
+        include: [
+          [fn('AVG', col('rating.score')), 'avg_rating'],
+          [fn('COUNT', col('favourite_recipes.id')), 'favourites'],
+          [fn('COUNT', col('comments.id')), 'comments_number'],
+        ],
+        exclude: ['img', 'description', 'servings_number', 'time', 'user_id'],
       },
-      attributes: ['id'],
+      group: ['Recipe.id'],
     });
   }
 
@@ -113,11 +198,16 @@ export class RecipeService {
       where: { id },
       include: [
         User,
-        Comment,
+        {
+          model: Comment,
+          attributes: {
+            exclude: ['recipe_id'],
+          },
+        },
         RecipeStep,
         {
           model: RecipeFilter,
-          include: [Filter],
+          include: [NestedFilter],
           attributes: {
             exclude: ['recipe_id', 'filter_id'],
           },

@@ -71,4 +71,7 @@ export class Recipe extends Model {
 
   @ApiHideProperty()
   favourites: number;
+
+  @ApiHideProperty()
+  comments_number: number;
 }

@@ -1,5 +1,4 @@
 import { IsDefined, IsNumber, IsString } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateRecipeStepDto {
   @IsDefined()

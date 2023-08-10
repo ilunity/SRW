@@ -2,15 +2,18 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   Patch,
   Post,
+  Request,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { User } from './entity/user.entity';
 import { CreateUserDto, UpdateUserDto } from './dto';
 import { CreateCommentDto, ReadCommentDto } from '../comment/dto';
@@ -24,6 +27,9 @@ import { RatingService } from '../rating/rating.service';
 import { CommentService } from '../comment/comment.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
+import { UpdateUserRoleDto } from './dto/update-user-role.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { USER_ROLE } from './entity/user-roles';
 
 @ApiTags('User')
 @Controller('user')
@@ -73,6 +79,18 @@ export class UserController {
     @UploadedFile() avatar: Express.Multer.File,
   ): Promise<User> {
     return this.userService.update(updateUserDto, avatar);
+  }
+
+  /** Updates the user role */
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Patch('role')
+  updateRole(@Request() req, @Body() updateUserRole: UpdateUserRoleDto): Promise<User> {
+    if (req.user.role !== USER_ROLE.ADMIN) {
+      throw new ForbiddenException();
+    }
+
+    return this.userService.updateRole(updateUserRole);
   }
 
   // ---------- comments ----------

@@ -4,6 +4,7 @@ import { User } from './entity/user.entity';
 import { CreateUserDto, UpdateUserDto } from './dto';
 import { FavouriteRecipe } from '../favourite-recipe/entity/favourite-recipe.entity';
 import { FileService, FileType } from '../file/file.service';
+import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 
 @Injectable()
 export class UserService {
@@ -42,7 +43,7 @@ export class UserService {
     await user.destroy();
   }
 
-  async update(updateDto: UpdateUserDto, avatar: Express.Multer.File): Promise<User> {
+  async update(updateDto: UpdateUserDto, avatar?: Express.Multer.File): Promise<User> {
     const user = await this.userModel.findByPk(updateDto.id);
 
     let imagePath;
@@ -51,5 +52,11 @@ export class UserService {
     }
 
     return await user.update({ ...updateDto, avatar: imagePath });
+  }
+
+  async updateRole(updateUserRoleDto: UpdateUserRoleDto): Promise<User> {
+    const user = await this.userModel.findByPk(updateUserRoleDto.id);
+
+    return await user.update({ ...updateUserRoleDto });
   }
 }

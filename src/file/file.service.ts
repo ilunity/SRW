@@ -29,4 +29,23 @@ export class FileService {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  createFromBase64(base64String: string): string {
+    try {
+      const [extension, base64Image] = base64String.split(';base64,');
+
+      const fileExtension = extension.split('/').pop();
+      const fileName = uuid.v4() + '.' + fileExtension;
+      const filePath = path.resolve(__dirname, '..', 'static', FileType.IMAGE);
+
+      if (!fs.existsSync(filePath)) {
+        fs.mkdirSync(filePath, { recursive: true });
+      }
+
+      fs.writeFileSync(path.resolve(filePath, fileName), base64Image, { encoding: 'base64' });
+      return FileType.IMAGE + '/' + fileName;
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 }

@@ -14,6 +14,7 @@ import { Product } from '../product/entity/product.entity';
 import { UserModule } from '../user/user.module';
 import { FileModule } from '../file/file.module';
 import { NestedFilter } from '../nested-filter/entity/nested-filter.entity';
+import { CommentModule } from '../comment/comment.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { NestedFilter } from '../nested-filter/entity/nested-filter.entity';
     ]),
     UserModule,
     FileModule,
+    CommentModule,
   ],
   controllers: [RecipeController],
   providers: [

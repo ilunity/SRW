@@ -6,7 +6,7 @@ import {
   CreateRecipeDto,
   ReadRecipeDto,
   ReadRecipeIdsDto,
-  ReadRecipeShortDto,
+  ReadRecipePreviewDto,
   UpdateRecipeStatusDto,
 } from './dto';
 import { User } from '../user/entity/user.entity';
@@ -88,9 +88,15 @@ export class RecipeService {
     });
   }
 
-  async find(status: RECIPE_STATUS, filters: FilterKeys[] = []): Promise<ReadRecipeDto[]> {
+  async find({
+    filters = [],
+    additionalClause,
+  }: {
+    filters?: FilterKeys[];
+    additionalClause?: WhereOptions<Recipe>;
+  }): Promise<ReadRecipePreviewDto[]> {
     const clause: WhereOptions = {
-      status,
+      ...additionalClause,
     };
 
     if (filters !== undefined) {
@@ -106,21 +112,6 @@ export class RecipeService {
       where: clause,
       include: [
         User,
-        Comment,
-        RecipeStep,
-        {
-          model: RecipeFilter,
-          as: 'filters',
-          include: [
-            {
-              model: NestedFilter,
-              as: 'filter',
-            },
-          ],
-          attributes: {
-            exclude: ['recipe_id', 'filter_id'],
-          },
-        },
         {
           model: RecipeProduct,
           include: [Product],
@@ -128,43 +119,6 @@ export class RecipeService {
             exclude: ['recipe_id', 'product_id'],
           },
         },
-        {
-          model: Rating,
-          as: 'rating',
-          attributes: [],
-        },
-        {
-          model: FavouriteRecipe,
-          as: 'favourite_recipes',
-          attributes: [],
-        },
-      ],
-      attributes: {
-        include: [
-          [fn('AVG', col('rating.score')), 'avg_rating'],
-          [fn('COUNT', col('favourite_recipes.id')), 'favourites'],
-        ],
-        exclude: ['user_id'],
-      },
-      group: [
-        'Recipe.id',
-        'user.id',
-        'comments.id',
-        'products.id',
-        'steps.id',
-        'filters.id',
-        'products.product.id',
-        'filters.filter.id',
-      ],
-    });
-  }
-
-  async findMy(payload: ITokenPayload): Promise<ReadRecipeShortDto[]> {
-    const user = await this.userService.findOne(payload.id);
-
-    return this.recipeModel.findAll({
-      where: { user_id: user.id },
-      include: [
         {
           model: Comment,
           as: 'comments',
@@ -187,9 +141,54 @@ export class RecipeService {
           [fn('COUNT', col('favourite_recipes.id')), 'favourites'],
           [fn('COUNT', col('comments.id')), 'comments_number'],
         ],
-        exclude: ['img', 'description', 'servings_number', 'time', 'user_id'],
+        exclude: ['user_id'],
       },
-      group: ['Recipe.id'],
+      group: ['Recipe.id', 'user.id', 'products.id', 'products.product.id'],
+    });
+  }
+
+  async findMy(payload: ITokenPayload): Promise<ReadRecipePreviewDto[]> {
+    const user = await this.userService.findOne(payload.id);
+
+    // return this.recipeModel.findAll({
+    //   where: { user_id: user.id },
+    //   include: [
+    //     User,
+    //     {
+    //       model: RecipeProduct,
+    //       include: [Product],
+    //       attributes: {
+    //         exclude: ['recipe_id', 'product_id'],
+    //       },
+    //     },
+    //     {
+    //       model: Comment,
+    //       as: 'comments',
+    //       attributes: [],
+    //     },
+    //     {
+    //       model: Rating,
+    //       as: 'rating',
+    //       attributes: [],
+    //     },
+    //     {
+    //       model: FavouriteRecipe,
+    //       as: 'favourite_recipes',
+    //       attributes: [],
+    //     },
+    //   ],
+    //   attributes: {
+    //     include: [
+    //       [fn('AVG', col('rating.score')), 'avg_rating'],
+    //       [fn('COUNT', col('favourite_recipes.id')), 'favourites'],
+    //       [fn('COUNT', col('comments.id')), 'comments_number'],
+    //     ],
+    //     exclude: ['user_id'],
+    //   },
+    //   group: ['Recipe.id', 'user.id', 'products.id', 'products.product.id'],
+    // });
+    return this.find({
+      additionalClause: { user_id: user.id },
     });
   }
 
@@ -200,6 +199,7 @@ export class RecipeService {
         User,
         {
           model: Comment,
+          include: [User],
           attributes: {
             exclude: ['recipe_id'],
           },
@@ -246,6 +246,7 @@ export class RecipeService {
         'filters.id',
         'products.product.id',
         'filters.filter.id',
+        'comments.user.id',
       ],
     });
   }

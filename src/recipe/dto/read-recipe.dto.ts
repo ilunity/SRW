@@ -15,7 +15,7 @@ export class ReadRecipeDto {
   readonly title: string;
   readonly time: number;
   readonly avg_rating: number | null;
-  readonly favourites: number | null;
+  readonly favourites: number;
   readonly img: string;
   readonly servings_number: number;
   readonly description: string;

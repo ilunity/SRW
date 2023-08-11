@@ -14,9 +14,10 @@ import { RecipeService } from './recipe.service';
 import {
   CreateRecipeCombinedDto,
   CreateRecipeDto,
+  GetSharedRecipe,
   ReadRecipeDto,
   ReadRecipeIdsDto,
-  ReadRecipeShortDto,
+  ReadRecipePreviewDto,
   UpdateRecipeStatusDto,
 } from './dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -30,10 +31,12 @@ import { RecipeFilterService } from '../recipe-filter/recipe-filter.service';
 import { RecipeProductService } from '../recipe-product/recipe-product.service';
 import { CreateRecipeProductDto } from '../recipe-product/dto';
 import { RecipeProduct } from '../recipe-product/entity/recipe-product.entity';
-import { GetSharedRecipe } from './dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RECIPE_STATUS } from './entity/recipe-statuses';
 import { USER_ROLE } from '../user/entity/user-roles';
+import { CommentService } from '../comment/comment.service';
+import { CreateRecipeCommentDto } from './dto/create-recipe-comment.dto';
+import { Comment } from '../comment/entity/comment.entity';
 
 @ApiTags('Recipe')
 @Controller('recipe')
@@ -43,6 +46,7 @@ export class RecipeController {
     private recipeStepService: RecipeStepService,
     private recipeFilterService: RecipeFilterService,
     private recipeProductService: RecipeProductService,
+    private commentService: CommentService,
   ) {}
 
   /** Creates the Recipe record */
@@ -78,27 +82,32 @@ export class RecipeController {
 
   /** Returns a list of 'SHARED' recipes */
   @Post('shared')
-  findAllShared(@Body() getSharedRecipe: GetSharedRecipe): Promise<ReadRecipeDto[]> {
-    return this.recipeService.find(RECIPE_STATUS.SHARED, getSharedRecipe.filters_keys);
+  findAllShared(@Body() getSharedRecipe: GetSharedRecipe): Promise<ReadRecipePreviewDto[]> {
+    return this.recipeService.find({
+      additionalClause: { status: RECIPE_STATUS.SHARED },
+      filters: getSharedRecipe.filters_keys,
+    });
   }
 
   /** Returns a list of 'CREATION' recipes */
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post('created')
-  findAllCreated(@Request() req): Promise<ReadRecipeDto[]> {
+  findAllCreated(@Request() req): Promise<ReadRecipePreviewDto[]> {
     if (req.user.role !== USER_ROLE.ADMIN) {
       throw new ForbiddenException();
     }
 
-    return this.recipeService.find(RECIPE_STATUS.CREATION);
+    return this.recipeService.find({
+      additionalClause: { status: RECIPE_STATUS.CREATION },
+    });
   }
 
   /** Returns a list of user recipes */
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get('my')
-  findMyRecipes(@Request() req): Promise<ReadRecipeShortDto[]> {
+  findMyRecipes(@Request() req): Promise<ReadRecipePreviewDto[]> {
     return this.recipeService.findMy(req.user);
   }
 
@@ -160,5 +169,23 @@ export class RecipeController {
   @Delete('product/:product_id')
   removeProduct(@Param('product_id') productId: number) {
     return this.recipeProductService.remove(productId);
+  }
+
+  // ---------- comments ----------
+
+  /** Comments the recipe */
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post(':recipe_id/comment')
+  comment(
+    @Request() req,
+    @Param('recipe_id') recipe_id: number,
+    @Body() createRecipeCommentDto: CreateRecipeCommentDto,
+  ): Promise<Comment> {
+    return this.commentService.create({
+      ...createRecipeCommentDto,
+      recipe_id,
+      user_id: req.user.id,
+    });
   }
 }

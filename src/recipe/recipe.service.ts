@@ -120,6 +120,11 @@ export class RecipeService {
           },
         },
         {
+          model: RecipeFilter,
+          include: [NestedFilter],
+          attributes: [],
+        },
+        {
           model: Comment,
           as: 'comments',
           attributes: [],
@@ -143,50 +148,20 @@ export class RecipeService {
         ],
         exclude: ['user_id'],
       },
-      group: ['Recipe.id', 'user.id', 'products.id', 'products.product.id'],
+      group: [
+        'Recipe.id',
+        'user.id',
+        'products.id',
+        'products.product.id',
+        'filters.id',
+        'filters.filter.id',
+      ],
     });
   }
 
   async findMy(payload: ITokenPayload): Promise<ReadRecipePreviewDto[]> {
     const user = await this.userService.findOne(payload.id);
 
-    // return this.recipeModel.findAll({
-    //   where: { user_id: user.id },
-    //   include: [
-    //     User,
-    //     {
-    //       model: RecipeProduct,
-    //       include: [Product],
-    //       attributes: {
-    //         exclude: ['recipe_id', 'product_id'],
-    //       },
-    //     },
-    //     {
-    //       model: Comment,
-    //       as: 'comments',
-    //       attributes: [],
-    //     },
-    //     {
-    //       model: Rating,
-    //       as: 'rating',
-    //       attributes: [],
-    //     },
-    //     {
-    //       model: FavouriteRecipe,
-    //       as: 'favourite_recipes',
-    //       attributes: [],
-    //     },
-    //   ],
-    //   attributes: {
-    //     include: [
-    //       [fn('AVG', col('rating.score')), 'avg_rating'],
-    //       [fn('COUNT', col('favourite_recipes.id')), 'favourites'],
-    //       [fn('COUNT', col('comments.id')), 'comments_number'],
-    //     ],
-    //     exclude: ['user_id'],
-    //   },
-    //   group: ['Recipe.id', 'user.id', 'products.id', 'products.product.id'],
-    // });
     return this.find({
       additionalClause: { user_id: user.id },
     });

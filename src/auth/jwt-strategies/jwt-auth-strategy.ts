@@ -1,18 +1,22 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
-import { USER_ROLE } from '../user/entity/user-roles';
+import { USER_ROLE } from '../../user/entity/user-roles';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-export interface ITokenPayload {
+export interface ILoginTokenPayload {
   username: string;
-  id: number;
+  sub: number;
   role: USER_ROLE;
 }
 
+export type IUserPayload = Omit<ILoginTokenPayload, 'sub'> & {
+  id: number;
+};
+
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
+export class JwtAuthStrategy extends PassportStrategy(Strategy) {
   constructor() {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -21,7 +25,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload) {
+  async validate(payload: ILoginTokenPayload) {
     return {
       username: payload.username,
       id: payload.sub,

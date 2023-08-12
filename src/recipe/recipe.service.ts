@@ -24,10 +24,10 @@ import { FavouriteRecipe } from '../favourite-recipe/entity/favourite-recipe.ent
 import { NestedFilter } from '../nested-filter/entity/nested-filter.entity';
 import { Sequelize } from 'sequelize-typescript';
 import { FilterKeys } from '../nested-filter/dto/get-filter.dto';
-import { ITokenPayload } from '../auth/jwt.strategy';
 import { RecipeProductService } from '../recipe-product/recipe-product.service';
 import { RecipeStepService } from '../recipe-step/recipe-step.service';
 import { RecipeFilterService } from '../recipe-filter/recipe-filter.service';
+import { IUserPayload } from '../auth/jwt-strategies';
 
 @Injectable()
 export class RecipeService {
@@ -50,14 +50,14 @@ export class RecipeService {
     private recipeFilterService: RecipeFilterService,
   ) {}
 
-  async create(user: ITokenPayload, dto: CreateRecipeDto): Promise<Recipe> {
+  async create(user: IUserPayload, dto: CreateRecipeDto): Promise<Recipe> {
     const imagePath = this.fileService.createFromBase64(dto.img);
 
     const recipe = await this.recipeModel.create({ ...dto, user_id: user.id, img: imagePath });
     return recipe;
   }
 
-  async createCombined(user: ITokenPayload, dto: CreateRecipeCombinedDto): Promise<Recipe> {
+  async createCombined(user: IUserPayload, dto: CreateRecipeCombinedDto): Promise<Recipe> {
     const recipe = await this.create(user, dto.description);
 
     for (const ingredient of dto.ingredients) {
@@ -159,7 +159,7 @@ export class RecipeService {
     });
   }
 
-  async findMy(payload: ITokenPayload): Promise<ReadRecipePreviewDto[]> {
+  async findMy(payload: IUserPayload): Promise<ReadRecipePreviewDto[]> {
     const user = await this.userService.findOne(payload.id);
 
     return this.find({

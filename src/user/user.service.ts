@@ -16,8 +16,8 @@ export class UserService {
     private fileService: FileService,
   ) {}
 
-  async create(dto: CreateUserDto, avatar: Express.Multer.File): Promise<User> {
-    const imagePath = this.fileService.createFile(FileType.IMAGE, avatar);
+  async create(dto: CreateUserDto, avatar?: Express.Multer.File): Promise<User> {
+    const imagePath = avatar ? this.fileService.createFile(FileType.IMAGE, avatar) : undefined;
 
     return this.userModel.create({ ...dto, avatar: imagePath });
   }

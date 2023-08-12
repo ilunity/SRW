@@ -11,5 +11,5 @@ export class CreateUserDto {
   readonly email: string;
 
   @ApiProperty({ type: 'string', format: 'binary', required: false })
-  readonly avatar: Express.Multer.File;
+  readonly avatar?: Express.Multer.File;
 }

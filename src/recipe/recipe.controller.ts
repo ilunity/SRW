@@ -80,6 +80,14 @@ export class RecipeController {
     return this.recipeService.findAll();
   }
 
+  /** Returns all user favourite recipes */
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('favourite')
+  findFavourites(@Request() req): Promise<ReadRecipePreviewDto[]> {
+    return this.recipeService.findAllFavourites(req.user.id);
+  }
+
   /** Returns a list of 'SHARED' recipes */
   @Post('shared')
   findAllShared(@Body() getSharedRecipe: GetSharedRecipe): Promise<ReadRecipePreviewDto[]> {

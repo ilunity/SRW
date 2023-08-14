@@ -1,6 +1,6 @@
 import { IsDefined, IsInt } from 'class-validator';
 
-export class CreateFavouriteRecipeDto {
+export class FavouriteRecipeDto {
   @IsDefined()
   @IsInt()
   readonly user_id: number;

@@ -5,20 +5,21 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { User } from './entity/user.entity';
 import { Comment } from '../comment/entity/comment.entity';
 import { FavouriteRecipe } from '../favourite-recipe/entity/favourite-recipe.entity';
-import { FavouriteRecipeService } from '../favourite-recipe/favourite-recipe.service';
 import { RatingService } from '../rating/rating.service';
 import { Rating } from '../rating/entity/rating.entity';
 import { Recipe } from '../recipe/entity/recipe.entity';
 import { CommentService } from '../comment/comment.service';
 import { FileModule } from '../file/file.module';
+import { FavouriteRecipeModule } from '../favourite-recipe/favourite-recipe.module';
 
 @Module({
   imports: [
     SequelizeModule.forFeature([User, Comment, Recipe, FavouriteRecipe, Rating]),
     FileModule,
+    FavouriteRecipeModule,
   ],
   controllers: [UserController],
-  providers: [UserService, CommentService, FavouriteRecipeService, RatingService],
+  providers: [UserService, CommentService, RatingService],
   exports: [UserService],
 })
 export class UserModule {}

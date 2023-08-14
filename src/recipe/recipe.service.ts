@@ -88,6 +88,63 @@ export class RecipeService {
     });
   }
 
+  async findAllFavourites(userId: number): Promise<ReadRecipePreviewDto[]> {
+    const favouriteRecipes = await this.recipeModel.findAll({
+      include: [
+        User,
+        {
+          model: RecipeProduct,
+          include: [Product],
+          attributes: {
+            exclude: ['recipe_id', 'product_id'],
+          },
+        },
+        {
+          model: RecipeFilter,
+          include: [NestedFilter],
+          attributes: [],
+        },
+        {
+          model: Comment,
+          as: 'comments',
+          attributes: [],
+        },
+        {
+          model: Rating,
+          as: 'rating',
+          attributes: [],
+        },
+        {
+          model: FavouriteRecipe,
+          as: 'favourite_recipes',
+          attributes: [],
+          where: {
+            user_id: userId,
+          },
+        },
+      ],
+      attributes: {
+        include: [
+          [fn('AVG', col('rating.score')), 'avg_rating'],
+          [fn('COUNT', fn('DISTINCT', col('favourite_recipes.id'))), 'favourites'],
+          [fn('COUNT', col('comments.id')), 'comments_number'],
+        ],
+        exclude: ['user_id'],
+      },
+      group: [
+        'Recipe.id',
+        'favourite_recipes.id',
+        'user.id',
+        'products.id',
+        'products.product.id',
+        'filters.id',
+        'filters.filter.id',
+      ],
+    });
+
+    return favouriteRecipes;
+  }
+
   async find({
     filters = [],
     additionalClause,

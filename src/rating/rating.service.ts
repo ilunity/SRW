@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { CreateRatingDto, UpdateRatingDto } from './dto';
+import { RatingDto } from './dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Rating } from './entity/rating.entity';
 import { Recipe } from '../recipe/entity/recipe.entity';
 import { User } from '../user/entity/user.entity';
 import { handleRowNotExist } from '../utils/row-existence-handlers';
+import { GetRatingDto } from './dto/get-rating.dto';
 
 @Injectable()
 export class RatingService {
@@ -17,37 +18,30 @@ export class RatingService {
     private userModel: typeof User,
   ) {}
 
-  async create(createRatingDto: CreateRatingDto): Promise<Rating> {
-    await handleRowNotExist(this.recipeModel, { id: createRatingDto.recipe_id });
-    await handleRowNotExist(this.userModel, { id: createRatingDto.user_id });
+  async create(ratingDto: RatingDto): Promise<Rating> {
+    await handleRowNotExist(this.recipeModel, { id: ratingDto.recipe_id });
+    await handleRowNotExist(this.userModel, { id: ratingDto.user_id });
 
-    return this.ratingModel.create({ ...createRatingDto });
+    return this.ratingModel.create({ ...ratingDto });
   }
 
-  async findAll(): Promise<Rating[]> {
-    return this.ratingModel.findAll();
+  async findOne(getRatingDto: GetRatingDto): Promise<Rating | undefined> {
+    return this.ratingModel.findOne({ where: { ...getRatingDto } });
   }
 
-  async findAllByUser(id: number): Promise<Rating[]> {
-    return this.ratingModel.findAll({ where: { user_id: id } });
+  async update({ user_id, recipe_id, score }: RatingDto): Promise<Rating> {
+    const rating = await this.ratingModel.findOne({
+      where: {
+        user_id,
+        recipe_id,
+      },
+    });
+
+    return await rating.update({ score });
   }
 
-  async findAllByRecipe(id: number): Promise<Rating[]> {
-    return this.ratingModel.findAll({ where: { recipe_id: id } });
-  }
-
-  async findOne(id: number): Promise<Rating> {
-    return this.ratingModel.findByPk(id);
-  }
-
-  async update(id: number, updateRatingDto: UpdateRatingDto): Promise<Rating> {
-    const rating = await this.ratingModel.findByPk(id);
-
-    return await rating.update({ ...updateRatingDto });
-  }
-
-  async remove(id: number): Promise<void> {
-    const rating = await this.ratingModel.findByPk(id);
+  async remove(getRatingDto: GetRatingDto): Promise<void> {
+    const rating = await this.ratingModel.findOne({ where: { ...getRatingDto } });
 
     await rating.destroy();
   }

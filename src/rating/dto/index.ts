@@ -1,3 +1,3 @@
-export * from './create-rating.dto';
+export * from './rating.dto';
 export * from './read-rating.dto';
-export * from './update-rating.dto';
+export * from './rating-score-dto';

@@ -10,6 +10,7 @@ import { LoginDto, ReadProfileDto, SignUpDto } from './dto';
 import { getMailOptions, mailTemplates, transporter } from '../utils/smtp';
 import { ISignUpTokenPayload } from './jwt-strategies/jwt-sign-up-strategy';
 import { IUserPayload } from './jwt-strategies';
+import { ReadRegisterDto } from './dto/read-register-dto';
 
 @Injectable()
 export class AuthService {
@@ -34,11 +35,13 @@ export class AuthService {
     }
   }
 
-  async register(payload: ISignUpTokenPayload): Promise<ReadProfileDto> {
+  async register(payload: ISignUpTokenPayload): Promise<ReadRegisterDto> {
     const user = await this.userService.create(payload);
     const { id, username, role, avatar } = user;
 
-    return { id, username, role, avatar };
+    const token = this.jwtService.sign({ username, sub: user.id, role });
+
+    return { id, username, role, avatar, token };
   }
 
   async login(loginDto: LoginDto) {

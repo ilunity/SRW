@@ -3,7 +3,7 @@ import { IsDefined, IsInt, Max, Min } from 'class-validator';
 const MIN_RATE = 1;
 const MAX_RATE = 5;
 
-export class CreateRatingDto {
+export class RatingDto {
   @IsDefined()
   @IsInt()
   @Min(MIN_RATE)

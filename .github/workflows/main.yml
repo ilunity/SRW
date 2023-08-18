@@ -6,21 +6,6 @@ on:
 
 jobs:
   build:
-    env:
-      DB_DIALECT=${{ secrets.DB_DIALECT }}
-      DB_HOST=${{ secrets.DB_HOST }}
-      DB_PORT=${{ secrets.DB_PORT }}
-      DB_USERNAME=${{ secrets.DB_USERNAME }}
-      DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-      DB_NAME=${{ secrets.DB_NAME }}
-      PORT=${{ secrets.PORT }}
-      JWT_SECRET=${{ secrets.JWT_SECRET }}
-      SMTP_HOST=${{ secrets.SMTP_HOST }}
-      SMTP_PORT=${{ secrets.SMTP_PORT }}
-      SMTP_USER=${{ secrets.SMTP_USER }}
-      SMTP_PASS=${{ secrets.SMTP_PASS }}
-      CLIENT_HOST=${{ secrets.CLIENT_HOST }}
-      STATIC_FOLDER=${{ secrets.STATIC_FOLDER }}
     runs-on: ubuntu-latest
     steps:
       - name: Executing remote ssh commands to set env
@@ -30,19 +15,19 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            export DB_DIALECT=${{ DB_DIALECT }}
-            export DB_PORT=${{ DB_PORT }}
-            export DB_USERNAME=${{ DB_USERNAME }}
-            export DB_PASSWORD=${{ DB_PASSWORD }}
-            export DB_NAME=${{ DB_NAME }}
-            export PORT=${{ PORT }}
-            export JWT_SECRET=${{ JWT_SECRET }}
-            export SMTP_HOST=${{ SMTP_HOST }}
-            export SMTP_PORT=${{ SMTP_PORT }}
-            export SMTP_USER=${{ SMTP_USER }}
-            export SMTP_PASS=${{ SMTP_PASS }}
-            export CLIENT_HOST=${{ CLIENT_HOST }}
-            export STATIC_FOLDER=${{ STATIC_FOLDER }}
+            export DB_DIALECT=${{ secrets.DB_DIALECT }}
+            export DB_PORT=${{ secrets.DB_PORT }}
+            export DB_USERNAME=${{ secrets.DB_USERNAME }}
+            export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            export DB_NAME=${{ secrets.DB_NAME }}
+            export PORT=${{ secrets.PORT }}
+            export JWT_SECRET=${{ secrets.JWT_SECRET }}
+            export SMTP_HOST=${{ secrets.SMTP_HOST }}
+            export SMTP_PORT=${{ secrets.SMTP_PORT }}
+            export SMTP_USER=${{ secrets.SMTP_USER }}
+            export SMTP_PASS=${{ secrets.SMTP_PASS }}
+            export CLIENT_HOST=${{ secrets.CLIENT_HOST }}
+            export STATIC_FOLDER=${{ secrets.STATIC_FOLDER }}
 
       - name: Checkout
         uses: actions/checkout@v3

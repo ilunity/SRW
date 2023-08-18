@@ -11,9 +11,10 @@ import { RecipeProduct } from '../recipe-product/entity/recipe-product.entity';
 import { RecipeProductService } from '../recipe-product/recipe-product.service';
 import { Rating } from '../rating/entity/rating.entity';
 import { Product } from '../product/entity/product.entity';
-import { Filter } from '../filter/entity/filter.entity';
 import { UserModule } from '../user/user.module';
 import { FileModule } from '../file/file.module';
+import { NestedFilter } from '../nested-filter/entity/nested-filter.entity';
+import { CommentModule } from '../comment/comment.module';
 
 @Module({
   imports: [
@@ -24,12 +25,20 @@ import { FileModule } from '../file/file.module';
       RecipeProduct,
       Rating,
       Product,
-      Filter,
+      NestedFilter,
     ]),
     UserModule,
     FileModule,
+    CommentModule,
   ],
   controllers: [RecipeController],
-  providers: [RecipeService, RecipeStepService, RecipeFilterService, RecipeProductService],
+  providers: [
+    RecipeService,
+    RecipeStepService,
+    RecipeFilterService,
+    RecipeProductService,
+    RecipeProductService,
+    RecipeStepService,
+  ],
 })
 export class RecipeModule {}

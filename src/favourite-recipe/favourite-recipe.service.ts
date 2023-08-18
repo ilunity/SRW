@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { FavouriteRecipe } from './entity/favourite-recipe.entity';
-import { CreateFavouriteRecipeDto } from './dto';
+import { FavouriteRecipeDto } from './dto';
 import { handleRowExist } from 'src/utils/row-existence-handlers';
 
 @Injectable()
@@ -11,7 +11,7 @@ export class FavouriteRecipeService {
     private favouriteRecipeModel: typeof FavouriteRecipe,
   ) {}
 
-  async create(createFavouriteRecipeDto: CreateFavouriteRecipeDto) {
+  async create(createFavouriteRecipeDto: FavouriteRecipeDto) {
     await handleRowExist(this.favouriteRecipeModel, {
       ...createFavouriteRecipeDto,
     });
@@ -25,13 +25,19 @@ export class FavouriteRecipeService {
 
   async findByUser(id: number) {
     return await this.favouriteRecipeModel.findAll({
-      where: { userId: id },
+      where: { user_id: id },
     });
   }
 
-  async remove(id: number): Promise<void> {
-    const favourite = await this.favouriteRecipeModel.findByPk(id);
+  async find(favouriteRecipeDto: FavouriteRecipeDto): Promise<FavouriteRecipe | null> {
+    return await this.favouriteRecipeModel.findOne({
+      where: { ...favouriteRecipeDto },
+    });
+  }
 
-    return await favourite.destroy();
+  async remove(removeFavouriteRecipeDto: FavouriteRecipeDto): Promise<void> {
+    await this.favouriteRecipeModel.destroy({
+      where: { ...removeFavouriteRecipeDto },
+    });
   }
 }

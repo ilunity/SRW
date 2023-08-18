@@ -21,7 +21,14 @@ module.exports = {
     'no-alert': 'error',
     curly: 'error',
     'no-eval': 'error',
-    'no-magic-numbers': 'error',
+    '@typescript-eslint/no-magic-numbers': [
+      'warn',
+      {
+        ignore: [-1, 0, 1],
+        ignoreEnums: true,
+        ignoreNumericLiteralTypes: true,
+      },
+    ],
     '@typescript-eslint/no-unused-vars': ['error', { args: 'none' }],
     'no-trailing-spaces': 'error',
     'no-unused-expressions': 'error',

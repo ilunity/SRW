@@ -2,28 +2,33 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   Patch,
   Post,
+  Request,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { User } from './entity/user.entity';
 import { CreateUserDto, UpdateUserDto } from './dto';
 import { CreateCommentDto, ReadCommentDto } from '../comment/dto';
 import { Comment } from '../comment/entity/comment.entity';
 import { FavouriteRecipe } from '../favourite-recipe/entity/favourite-recipe.entity';
-import { CreateFavouriteRecipeDto } from '../favourite-recipe/dto';
 import { FavouriteRecipeService } from '../favourite-recipe/favourite-recipe.service';
-import { CreateRatingDto, UpdateRatingDto } from '../rating/dto';
+import { RatingScoreDto } from '../rating/dto';
 import { Rating } from '../rating/entity/rating.entity';
 import { RatingService } from '../rating/rating.service';
 import { CommentService } from '../comment/comment.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
+import { UpdateUserRoleDto } from './dto/update-user-role.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { USER_ROLE } from './entity/user-roles';
 
 @ApiTags('User')
 @Controller('user')
@@ -75,6 +80,18 @@ export class UserController {
     return this.userService.update(updateUserDto, avatar);
   }
 
+  /** Updates the user role */
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Patch('role')
+  updateRole(@Request() req, @Body() updateUserRole: UpdateUserRoleDto): Promise<User> {
+    if (req.user.role !== USER_ROLE.ADMIN) {
+      throw new ForbiddenException();
+    }
+
+    return this.userService.updateRole(updateUserRole);
+  }
+
   // ---------- comments ----------
 
   /** Creates user's comment for some recipe */
@@ -98,51 +115,94 @@ export class UserController {
   // ---------- favourites ----------
 
   /** Adds recipe in favourites */
-  @Post('favourite')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post('favourite/:recipe_id')
   addFavouriteRecipe(
-    @Body() createFavouriteRecipeDto: CreateFavouriteRecipeDto,
+    @Request() req,
+    @Param('recipe_id') recipe_id: number,
   ): Promise<FavouriteRecipe> {
-    return this.favouriteRecipeService.create(createFavouriteRecipeDto);
+    return this.favouriteRecipeService.create({
+      user_id: req.user.id,
+      recipe_id,
+    });
+  }
+
+  /** Returns FavouriteRecipe record or null */
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('favourite/:recipe_id')
+  findFavourite(@Request() req, @Param('recipe_id') recipe_id: number) {
+    return this.favouriteRecipeService.find({
+      user_id: req.user.id,
+      recipe_id,
+    });
   }
 
   /** Remove the favourite recipe */
-  @Delete('favourite/:favourite_id')
-  removeFavouriteRecipe(@Param('favourite_id') favouriteId: number) {
-    this.favouriteRecipeService.remove(favouriteId);
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Delete('favourite/:recipe_id')
+  removeFavouriteRecipe(@Request() req, @Param('recipe_id') recipe_id: number) {
+    return this.favouriteRecipeService.remove({
+      user_id: req.user.id,
+      recipe_id,
+    });
   }
 
   // ---------- rating ----------
 
   /** Rates some recipe */
-  @Post('rating')
-  rate(@Body() createRatingDto: CreateRatingDto): Promise<Rating> {
-    return this.ratingService.create(createRatingDto);
-  }
-
-  /** Get the list of all user's rates */
-  @Get(':user_id/rating')
-  findAllRates(@Param('user_id') userId: number): Promise<Rating[]> {
-    return this.ratingService.findAllByUser(userId);
-  }
-
-  /** Get the rate by PK */
-  @Get('rating/:rating_id')
-  findOneRate(@Param('rating_id') ratingId: number): Promise<Rating> {
-    return this.ratingService.findOne(ratingId);
-  }
-
-  /** Updates the rate by PK */
-  @Patch('rating/:rating_id')
-  updateRate(
-    @Param('rating_id') ratingId: number,
-    @Body() updateRatingDto: UpdateRatingDto,
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post('rating/:recipe_id')
+  rate(
+    @Request() req,
+    @Param('recipe_id') recipeId: number,
+    @Body() ratingScoreDto: RatingScoreDto,
   ): Promise<Rating> {
-    return this.ratingService.update(ratingId, updateRatingDto);
+    return this.ratingService.create({
+      user_id: req.user.id,
+      recipe_id: recipeId,
+      score: ratingScoreDto.score,
+    });
   }
 
-  /** Deletes the rate by PK */
-  @Delete('rating/:rating_id')
-  removeRate(@Param('rating_id') ratingId: number) {
-    return this.ratingService.remove(ratingId);
+  /** Returns the Rating record */
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('rating/:recipe_id')
+  findOneRate(@Request() req, @Param('recipe_id') recipeId: number): Promise<Rating | undefined> {
+    return this.ratingService.findOne({
+      user_id: req.user.id,
+      recipe_id: recipeId,
+    });
+  }
+
+  /** Updates the rating */
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Patch('rating/:recipe_id')
+  updateRate(
+    @Request() req,
+    @Param('recipe_id') recipeId: number,
+    @Body() ratingScoreDto: RatingScoreDto,
+  ): Promise<Rating> {
+    return this.ratingService.update({
+      user_id: req.user.id,
+      recipe_id: recipeId,
+      score: ratingScoreDto.score,
+    });
+  }
+
+  /** Deletes the rating */
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Delete('rating/:recipe_id')
+  removeRate(@Request() req, @Param('recipe_id') recipeId: number) {
+    return this.ratingService.remove({
+      user_id: req.user.id,
+      recipe_id: recipeId,
+    });
   }
 }

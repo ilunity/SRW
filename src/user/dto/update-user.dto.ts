@@ -1,9 +1,9 @@
-import { IsDefined, IsNumberString, IsString } from 'class-validator';
+import { IsDefined, IsNumber, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateUserDto {
   @IsDefined()
-  @IsNumberString()
+  @IsNumber()
   readonly id: number;
 
   @IsString()

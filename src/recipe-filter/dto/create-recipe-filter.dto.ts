@@ -1,11 +1,11 @@
-import { IsDefined, IsInt } from 'class-validator';
+import { IsDefined, IsNumber } from 'class-validator';
 
 export class CreateRecipeFilterDto {
   @IsDefined()
-  @IsInt()
+  @IsNumber()
   readonly recipe_id: number;
 
   @IsDefined()
-  @IsInt()
+  @IsNumber()
   readonly filter_id: number;
 }

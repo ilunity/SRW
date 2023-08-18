@@ -30,19 +30,19 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            export DB_DIALECT=${{ DB_DIALECT }
-            export DB_PORT=${{ DB_PORT }
-            export DB_USERNAME=${{ DB_USERNAME }
-            export DB_PASSWORD=${{ DB_PASSWORD }
-            export DB_NAME=${{ DB_NAME }
-            export PORT=${{ PORT }
-            export JWT_SECRET=${{ JWT_SECRET }
-            export SMTP_HOST=${{ SMTP_HOST }
-            export SMTP_PORT=${{ SMTP_PORT }
-            export SMTP_USER=${{ SMTP_USER }
-            export SMTP_PASS=${{ SMTP_PASS }
-            export CLIENT_HOST=${{ CLIENT_HOST }
-            export STATIC_FOLDER=${{ STATIC_FOLDER }
+            export DB_DIALECT=${{ DB_DIALECT }}
+            export DB_PORT=${{ DB_PORT }}
+            export DB_USERNAME=${{ DB_USERNAME }}
+            export DB_PASSWORD=${{ DB_PASSWORD }}
+            export DB_NAME=${{ DB_NAME }}
+            export PORT=${{ PORT }}
+            export JWT_SECRET=${{ JWT_SECRET }}
+            export SMTP_HOST=${{ SMTP_HOST }}
+            export SMTP_PORT=${{ SMTP_PORT }}
+            export SMTP_USER=${{ SMTP_USER }}
+            export SMTP_PASS=${{ SMTP_PASS }}
+            export CLIENT_HOST=${{ CLIENT_HOST }}
+            export STATIC_FOLDER=${{ STATIC_FOLDER }}
 
       - name: Checkout
         uses: actions/checkout@v3

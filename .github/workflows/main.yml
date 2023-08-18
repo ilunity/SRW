@@ -36,7 +36,9 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Build docker compose
-        run: docker compose up --no-start
+        run: docker compose up
 
       - name: Push images to DO Container Registry
-        run: docker compose push
+        run: |
+          docker compose stop ${{ secrets.DOCKERHUB_USERNAME }}/foody-nest
+          docker compose push ${{ secrets.DOCKERHUB_USERNAME }}/foody-nest:latest

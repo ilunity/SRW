@@ -8,27 +8,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Executing remote ssh commands to set env
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USER }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            export DB_DIALECT=${{ secrets.DB_DIALECT }}
-            export DB_PORT=${{ secrets.DB_PORT }}
-            export DB_USERNAME=${{ secrets.DB_USERNAME }}
-            export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            export DB_NAME=${{ secrets.DB_NAME }}
-            export PORT=${{ secrets.PORT }}
-            export JWT_SECRET=${{ secrets.JWT_SECRET }}
-            export SMTP_HOST=${{ secrets.SMTP_HOST }}
-            export SMTP_PORT=${{ secrets.SMTP_PORT }}
-            export SMTP_USER=${{ secrets.SMTP_USER }}
-            export SMTP_PASS=${{ secrets.SMTP_PASS }}
-            export CLIENT_HOST=${{ secrets.CLIENT_HOST }}
-            export STATIC_FOLDER=${{ secrets.STATIC_FOLDER }}
-
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -43,3 +22,18 @@ jobs:
 
       - name: Push image to DO Container Registry
         run: docker compose -f docker-compose.yml push
+        with:
+          script: |
+            export DB_DIALECT=${{ secrets.DB_DIALECT }}
+            export DB_PORT=${{ secrets.DB_PORT }}
+            export DB_USERNAME=${{ secrets.DB_USERNAME }}
+            export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            export DB_NAME=${{ secrets.DB_NAME }}
+            export PORT=${{ secrets.PORT }}
+            export JWT_SECRET=${{ secrets.JWT_SECRET }}
+            export SMTP_HOST=${{ secrets.SMTP_HOST }}
+            export SMTP_PORT=${{ secrets.SMTP_PORT }}
+            export SMTP_USER=${{ secrets.SMTP_USER }}
+            export SMTP_PASS=${{ secrets.SMTP_PASS }}
+            export CLIENT_HOST=${{ secrets.CLIENT_HOST }}
+            export STATIC_FOLDER=${{ secrets.STATIC_FOLDER }}

@@ -49,19 +49,21 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            echo DB_PORT=${{ secrets.DB_PORT }} >> ${{ secrets.PROJECT_FOLDER }}/.env
-            echo DB_DIALECT=${{ secrets.DB_DIALECT }} >> ${{ secrets.PROJECT_FOLDER }}/.env
-            echo DB_USERNAME=${{ secrets.DB_USERNAME }} >> ${{ secrets.PROJECT_FOLDER }}/.env
-            echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> ${{ secrets.PROJECT_FOLDER }}/.env
-            echo DB_NAME=${{ secrets.DB_NAME }} >> ${{ secrets.PROJECT_FOLDER }}/.env
-            echo PORT=${{ secrets.PORT }} >> ${{ secrets.PROJECT_FOLDER }}/.env
-            echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> ${{ secrets.PROJECT_FOLDER }}/.env
-            echo SMTP_HOST=${{ secrets.SMTP_HOST }} >> ${{ secrets.PROJECT_FOLDER }}/.env
-            echo SMTP_PORT=${{ secrets.SMTP_PORT }} >> ${{ secrets.PROJECT_FOLDER }}/.env
-            echo SMTP_USER=${{ secrets.SMTP_USER }} >> ${{ secrets.PROJECT_FOLDER }}/.env
-            echo SMTP_PASS=${{ secrets.SMTP_PASS }} >> ${{ secrets.PROJECT_FOLDER }}/.env
-            echo CLIENT_HOST=${{ secrets.CLIENT_HOST }} >> ${{ secrets.PROJECT_FOLDER }}/.env
-            echo STATIC_FOLDER=${{ secrets.STATIC_FOLDER }} >> ${{ secrets.PROJECT_FOLDER }}/.env
+            cd ${{ secrets.PROJECT_FOLDER }}
+            rm .env
+            echo DB_PORT=${{ secrets.DB_PORT }} >> .env
+            echo DB_DIALECT=${{ secrets.DB_DIALECT }} >> .env
+            echo DB_USERNAME=${{ secrets.DB_USERNAME }} >> .env
+            echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env
+            echo DB_NAME=${{ secrets.DB_NAME }} >> .env
+            echo PORT=${{ secrets.PORT }} >> .env
+            echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
+            echo SMTP_HOST=${{ secrets.SMTP_HOST }} >> .env
+            echo SMTP_PORT=${{ secrets.SMTP_PORT }} >> .env
+            echo SMTP_USER=${{ secrets.SMTP_USER }} >> .env
+            echo SMTP_PASS=${{ secrets.SMTP_PASS }} >> .env
+            echo CLIENT_HOST=${{ secrets.CLIENT_HOST }} >> .env
+            echo STATIC_FOLDER=${{ secrets.STATIC_FOLDER }} >> .env
 
       - name: Copy docker.compose.yml via ssh password
         uses: appleboy/scp-action@v0.1.4
@@ -70,7 +72,7 @@ jobs:
           username: ${{secrets.SSH_USER}}
           password: ${{secrets.SSH_PASSWORD}}
           port: ${{ secrets.SSH_PORT }}
-          source: "docker.compose.yml"
+          source: "./docker.compose.yml"
           target: ${{ secrets.PROJECT_FOLDER }}
 
       - name: Run docker compose on remote server

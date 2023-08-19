@@ -63,7 +63,17 @@ jobs:
             echo CLIENT_HOST=${{ secrets.CLIENT_HOST }} >> ${{ secrets.PROJECT_FOLDER }}/.env
             echo STATIC_FOLDER=${{ secrets.STATIC_FOLDER }} >> ${{ secrets.PROJECT_FOLDER }}/.env
 
-      - name: Run command on remote server
+      - name: Copy docker.compose.yml via ssh password
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{secrets.SSH_HOST}}
+          username: ${{secrets.SSH_USER}}
+          password: ${{secrets.SSH_PASSWORD}}
+          port: ${{ secrets.SSH_PORT }}
+          source: "docker.compose.yml"
+          target: ${{ secrets.PROJECT_FOLDER }}
+
+      - name: Run docker compose on remote server
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{secrets.SSH_HOST}}
@@ -71,6 +81,5 @@ jobs:
           password: ${{secrets.SSH_PASSWORD}}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            echo ./docker-compose.yml >> ${{ secrets.PROJECT_FOLDER }}
-            docker-compose down
-            docker-compose up
+            docker compose down
+            docker compose up

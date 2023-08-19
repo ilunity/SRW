@@ -1,25 +1,25 @@
 services:
   server:
     build: .
-    image: ilunity/foody-nest
+    image: ilunity/foody-nest:latest
     restart: always
     volumes:
       - static:/usr/src/app/dist/static
     environment:
-      DB_DIALECT: ${DB_DIALECT}
-      DB_HOST: postgres
-      DB_PORT: ${DB_PORT}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_NAME: ${DB_NAME}
-      PORT: ${PORT}
-      JWT_SECRET: ${JWT_SECRET}
-      SMTP_HOST: ${SMTP_HOST}
-      SMTP_PORT: ${SMTP_PORT}
-      SMTP_USER: ${SMTP_USER}
-      SMTP_PASS: ${SMTP_PASS}
-      CLIENT_HOST: ${CLIENT_HOST}
-      STATIC_FOLDER: ${STATIC_FOLDER}
+      - DB_DIALECT
+      - DB_HOST=postgres
+      - DB_PORT
+      - DB_USERNAME
+      - DB_PASSWORD
+      - DB_NAME
+      - PORT
+      - JWT_SECRET
+      - SMTP_HOST
+      - SMTP_PORT
+      - SMTP_USER
+      - SMTP_PASS
+      - CLIENT_HOST
+      - STATIC_FOLDER
 
     depends_on:
       - postgres

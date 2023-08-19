@@ -41,12 +41,25 @@ jobs:
       - name: Push images to DO Container Registry
         run: docker compose push
 
-      - name: Executing remote ssh commands to set env
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Copy docker.compose.yml via ssh password
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{secrets.SSH_HOST}}
+          username: ${{secrets.SSH_USER}}
+          password: ${{secrets.SSH_PASSWORD}}
+          port: ${{ secrets.SSH_PORT }}
+          source: "docker-compose.yml"
+          target: ${{ secrets.PROJECT_FOLDER }}
+
+      - name: Cope env variables and run docker compose on remote server
         uses: appleboy/ssh-action@v1.0.0
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          password: ${{ secrets.SSH_PASSWORD }}
+          host: ${{secrets.SSH_HOST}}
+          username: ${{secrets.SSH_USER}}
+          password: ${{secrets.SSH_PASSWORD}}
           port: ${{ secrets.SSH_PORT }}
           script: |
             cd ${{ secrets.PROJECT_FOLDER }}
@@ -64,24 +77,5 @@ jobs:
             echo SMTP_PASS=${{ secrets.SMTP_PASS }} >> .env
             echo CLIENT_HOST=${{ secrets.CLIENT_HOST }} >> .env
             echo STATIC_FOLDER=${{ secrets.STATIC_FOLDER }} >> .env
-
-      - name: Copy docker.compose.yml via ssh password
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{secrets.SSH_HOST}}
-          username: ${{secrets.SSH_USER}}
-          password: ${{secrets.SSH_PASSWORD}}
-          port: ${{ secrets.SSH_PORT }}
-          source: "docker-compose.yml"
-          target: ${{ secrets.PROJECT_FOLDER }}
-
-      - name: Run docker compose on remote server
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{secrets.SSH_HOST}}
-          username: ${{secrets.SSH_USER}}
-          password: ${{secrets.SSH_PASSWORD}}
-          port: ${{ secrets.SSH_PORT }}
-          script: |
             docker compose down
             docker compose up

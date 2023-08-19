@@ -36,7 +36,7 @@ jobs:
         uses: docker/setup-buildx-action@v2
 
       - name: Docker compose up
-        run: docker compose up --pull never -d
+        run: docker compose up --build -d
 
       - name: Push images to DO Container Registry
         run: docker compose push
@@ -76,4 +76,4 @@ jobs:
             echo CLIENT_HOST=${{ secrets.CLIENT_HOST }} >> .env
             echo STATIC_FOLDER=${{ secrets.STATIC_FOLDER }} >> .env
             docker compose down
-            docker compose up
+            docker compose up -d

@@ -1,7 +1,7 @@
 services:
   server:
     build: .
-    image: ilunity/foody-nest
+    image: ilunity/foody-nest:latest
     restart: always
     volumes:
       - static:/usr/src/app/dist/static

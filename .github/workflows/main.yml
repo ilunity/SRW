@@ -72,5 +72,5 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             echo ./docker-compose.yml >> ${{ secrets.secrets.PROJECT_FOLDER }}
-            docker-compose down;
+            docker-compose down
             docker-compose up

@@ -6,44 +6,23 @@ on:
 
 jobs:
   build:
-    env:
-      DB_DIALECT=${{ secrets.DB_DIALECT }}
-      DB_HOST=${{ secrets.DB_HOST }}
-      DB_PORT=${{ secrets.DB_PORT }}
-      DB_USERNAME=${{ secrets.DB_USERNAME }}
-      DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-      DB_NAME=${{ secrets.DB_NAME }}
-      PORT=${{ secrets.PORT }}
-      JWT_SECRET=${{ secrets.JWT_SECRET }}
-      SMTP_HOST=${{ secrets.SMTP_HOST }}
-      SMTP_PORT=${{ secrets.SMTP_PORT }}
-      SMTP_USER=${{ secrets.SMTP_USER }}
-      SMTP_PASS=${{ secrets.SMTP_PASS }}
-      CLIENT_HOST=${{ secrets.CLIENT_HOST }}
-      STATIC_FOLDER=${{ secrets.STATIC_FOLDER }}
     runs-on: ubuntu-latest
-    steps:
-      - name: Executing remote ssh commands to set env
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USER }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            export DB_DIALECT=${{ DB_DIALECT }
-            export DB_PORT=${{ DB_PORT }
-            export DB_USERNAME=${{ DB_USERNAME }
-            export DB_PASSWORD=${{ DB_PASSWORD }
-            export DB_NAME=${{ DB_NAME }
-            export PORT=${{ PORT }
-            export JWT_SECRET=${{ JWT_SECRET }
-            export SMTP_HOST=${{ SMTP_HOST }
-            export SMTP_PORT=${{ SMTP_PORT }
-            export SMTP_USER=${{ SMTP_USER }
-            export SMTP_PASS=${{ SMTP_PASS }
-            export CLIENT_HOST=${{ CLIENT_HOST }
-            export STATIC_FOLDER=${{ STATIC_FOLDER }
+    env:
+      DB_DIALECT: ${{ secrets.DB_DIALECT }}
+      DB_PORT: ${{ secrets.DB_PORT }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      PORT: ${{ secrets.PORT }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      SMTP_HOST: ${{ secrets.SMTP_HOST }}
+      SMTP_PORT: ${{ secrets.SMTP_PORT }}
+      SMTP_USER: ${{ secrets.SMTP_USER }}
+      SMTP_PASS: ${{ secrets.SMTP_PASS }}
+      CLIENT_HOST: ${{ secrets.CLIENT_HOST }}
+      STATIC_FOLDER: ${{ secrets.STATIC_FOLDER }}
 
+    steps:
       - name: Checkout
         uses: actions/checkout@v3
 
@@ -56,5 +35,45 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Push image to DO Container Registry
-        run: docker compose -f docker-compose.yml push
+      - name: Docker compose build
+        run: docker compose up --build -d
+
+      - name: Push images to DO Container Registry
+        run: docker compose push
+
+      - name: Copy docker.compose.yml via ssh password
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{secrets.SSH_HOST}}
+          username: ${{secrets.SSH_USER}}
+          password: ${{secrets.SSH_PASSWORD}}
+          port: ${{ secrets.SSH_PORT }}
+          overwrite: true
+          source: "docker-compose.yml"
+          target: ${{ secrets.PROJECT_FOLDER }}
+
+      - name: Copy env variables and run docker compose on remote server
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{secrets.SSH_HOST}}
+          username: ${{secrets.SSH_USER}}
+          password: ${{secrets.SSH_PASSWORD}}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd ${{ secrets.PROJECT_FOLDER }}
+            rm .env
+            echo DB_PORT=${{ secrets.DB_PORT }} >> .env
+            echo DB_DIALECT=${{ secrets.DB_DIALECT }} >> .env
+            echo DB_USERNAME=${{ secrets.DB_USERNAME }} >> .env
+            echo DB_PASSWORD=${{ secrets.DB_PASSWORD }} >> .env
+            echo DB_NAME=${{ secrets.DB_NAME }} >> .env
+            echo PORT=${{ secrets.PORT }} >> .env
+            echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
+            echo SMTP_HOST=${{ secrets.SMTP_HOST }} >> .env
+            echo SMTP_PORT=${{ secrets.SMTP_PORT }} >> .env
+            echo SMTP_USER=${{ secrets.SMTP_USER }} >> .env
+            echo SMTP_PASS=${{ secrets.SMTP_PASS }} >> .env
+            echo CLIENT_HOST=${{ secrets.CLIENT_HOST }} >> .env
+            echo STATIC_FOLDER=${{ secrets.STATIC_FOLDER }} >> .env
+            docker compose down
+            docker compose up -d

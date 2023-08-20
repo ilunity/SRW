@@ -2,4 +2,8 @@
 .results
 Dockerfile
 node_modules
+.dockerignore
+.gitignore
+README.md
 .env
+dist

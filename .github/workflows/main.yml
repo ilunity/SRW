@@ -35,7 +35,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Docker compose up
+      - name: Docker compose build
         run: docker compose up --build -d
 
       - name: Push images to DO Container Registry

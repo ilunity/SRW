@@ -9,10 +9,10 @@ export class NestedFilter extends Model {
   @Column({ primaryKey: true, autoIncrement: true })
   id: number;
 
-  @Column({ allowNull: false, unique: true, defaultValue: 0 })
+  @Column({ allowNull: false, defaultValue: 0 })
   left_key: number;
 
-  @Column({ allowNull: false, unique: true, defaultValue: 0 })
+  @Column({ allowNull: false, defaultValue: 0 })
   right_key: number;
 
   @Column({ allowNull: false })

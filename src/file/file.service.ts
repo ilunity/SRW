@@ -30,11 +30,15 @@ export class FileService {
     }
   }
 
-  createFromBase64(base64String: string): string {
+  createImageFromBase64(base64String?: string): string {
+    if (!base64String) {
+      return undefined;
+    }
+
     try {
       const [extension, base64Image] = base64String.split(';base64,');
 
-      const fileExtension = extension.split('/').pop();
+      const fileExtension = extension.split('/').pop().split('+')[0];
       const fileName = uuid.v4() + '.' + fileExtension;
       const filePath = path.resolve(__dirname, '..', 'static', FileType.IMAGE);
 
@@ -44,6 +48,26 @@ export class FileService {
 
       fs.writeFileSync(path.resolve(filePath, fileName), base64Image, { encoding: 'base64' });
       return FileType.IMAGE + '/' + fileName;
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  /** @returns {String} Returns the new filePath. */
+  changeImageFromBase64(filePath: string, base64String?: string): string {
+    const newImagePath = this.createImageFromBase64(base64String);
+    this.removeFile(filePath);
+
+    return newImagePath;
+  }
+
+  removeFile(filePath: string) {
+    try {
+      if (!fs.existsSync(filePath)) {
+        return;
+      }
+
+      fs.rmSync(filePath);
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }

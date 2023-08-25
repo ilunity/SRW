@@ -13,7 +13,7 @@ export class RecipeStepService {
   ) {}
 
   async create(createFavouriteRecipeDto: CreateRecipeStepDto): Promise<RecipeStep> {
-    const imagePath = this.fileService.createFromBase64(createFavouriteRecipeDto.img);
+    const imagePath = this.fileService.createImageFromBase64(createFavouriteRecipeDto.img);
 
     const recipeStep = await this.recipeStepModel.create({
       ...createFavouriteRecipeDto,
@@ -28,7 +28,7 @@ export class RecipeStepService {
 
     let imagePath;
     if (updateRecipeStepDto.img) {
-      imagePath = this.fileService.createFromBase64(updateRecipeStepDto.img);
+      imagePath = this.fileService.createImageFromBase64(updateRecipeStepDto.img);
     }
 
     return await recipeStep.update({

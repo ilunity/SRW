@@ -107,7 +107,7 @@ export class RecipeController {
     }
 
     return this.recipeService.find({
-      additionalClause: { status: RECIPE_STATUS.CREATION },
+      additionalClause: { status: RECIPE_STATUS.CREATED },
     });
   }
 

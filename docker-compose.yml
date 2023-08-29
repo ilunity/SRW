@@ -54,5 +54,7 @@ services:
 volumes:
   pgdata:
     driver: local
+  pgadmin:
+    driver: local
   static:
     driver: local

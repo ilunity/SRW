@@ -3,8 +3,9 @@ import { InjectModel } from '@nestjs/sequelize';
 import { User } from './entity/user.entity';
 import { CreateUserDto, UpdateUserDto } from './dto';
 import { FavouriteRecipe } from '../favourite-recipe/entity/favourite-recipe.entity';
-import { FileService, FileType } from '../file/file.service';
+import { FileService } from '../file/file.service';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
+import { findRowHandler } from '../utils';
 
 @Injectable()
 export class UserService {
@@ -16,8 +17,8 @@ export class UserService {
     private fileService: FileService,
   ) {}
 
-  async create(dto: CreateUserDto, avatar?: Express.Multer.File): Promise<User> {
-    const imagePath = avatar ? this.fileService.createFile(FileType.IMAGE, avatar) : undefined;
+  async create(dto: CreateUserDto): Promise<User> {
+    const imagePath = this.fileService.createImageFromBase64(dto.avatar);
 
     return this.userModel.create({ ...dto, avatar: imagePath });
   }
@@ -43,19 +44,22 @@ export class UserService {
     await user.destroy();
   }
 
-  async update(updateDto: UpdateUserDto, avatar?: Express.Multer.File): Promise<User> {
-    const user = await this.userModel.findByPk(updateDto.id);
+  async update(updateDto: UpdateUserDto): Promise<User> {
+    const user = await findRowHandler(() => this.userModel.findByPk(updateDto.id), 'Пользователь');
 
     let imagePath;
-    if (avatar) {
-      imagePath = this.fileService.createFile(FileType.IMAGE, avatar);
+    if (updateDto.avatar) {
+      imagePath = this.fileService.changeImageFromBase64(user.avatar, updateDto.avatar);
     }
 
     return await user.update({ ...updateDto, avatar: imagePath });
   }
 
   async updateRole(updateUserRoleDto: UpdateUserRoleDto): Promise<User> {
-    const user = await this.userModel.findByPk(updateUserRoleDto.id);
+    const user = await findRowHandler(
+      () => this.userModel.findByPk(updateUserRoleDto.id),
+      'Пользователь',
+    );
 
     return await user.update({ ...updateUserRoleDto });
   }

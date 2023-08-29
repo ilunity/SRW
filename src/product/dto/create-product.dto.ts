@@ -1,4 +1,3 @@
-import { ApiProperty } from '@nestjs/swagger';
 import { IsDefined, IsString } from 'class-validator';
 
 export class CreateProductDto {
@@ -6,6 +5,7 @@ export class CreateProductDto {
   @IsString()
   name: string;
 
-  @ApiProperty({ type: 'string', format: 'binary', required: true })
-  img: Express.Multer.File;
+  @IsDefined()
+  @IsString()
+  img: string;
 }

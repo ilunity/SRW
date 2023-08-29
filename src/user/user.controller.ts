@@ -8,12 +8,10 @@ import {
   Patch,
   Post,
   Request,
-  UploadedFile,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { User } from './entity/user.entity';
 import { CreateUserDto, UpdateUserDto } from './dto';
 import { CreateCommentDto, ReadCommentDto } from '../comment/dto';
@@ -24,11 +22,10 @@ import { RatingScoreDto } from '../rating/dto';
 import { Rating } from '../rating/entity/rating.entity';
 import { RatingService } from '../rating/rating.service';
 import { CommentService } from '../comment/comment.service';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { Express } from 'express';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { USER_ROLE } from './entity/user-roles';
+import { userRoleErrorHandler } from '../utils';
 
 @ApiTags('User')
 @Controller('user')
@@ -41,14 +38,9 @@ export class UserController {
   ) {}
 
   /** Creates the User record */
-  @ApiConsumes('multipart/form-data')
   @Post()
-  @UseInterceptors(FileInterceptor('avatar'))
-  create(
-    @Body() createUserDto: CreateUserDto,
-    @UploadedFile() avatar: Express.Multer.File,
-  ): Promise<User> {
-    return this.userService.create(createUserDto, avatar);
+  create(@Body() createUserDto: CreateUserDto): Promise<User> {
+    return this.userService.create(createUserDto);
   }
 
   /** Returns list of all users */
@@ -70,14 +62,14 @@ export class UserController {
   }
 
   /** Updates the user */
-  @ApiConsumes('multipart/form-data')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Patch()
-  @UseInterceptors(FileInterceptor('avatar'))
-  update(
-    @Body() updateUserDto: UpdateUserDto,
-    @UploadedFile() avatar: Express.Multer.File,
-  ): Promise<User> {
-    return this.userService.update(updateUserDto, avatar);
+  update(@Request() req, @Body() updateUserDto: UpdateUserDto): Promise<User> {
+    if (req.user.id !== updateUserDto.id) {
+      throw new ForbiddenException();
+    }
+    return this.userService.update(updateUserDto);
   }
 
   /** Updates the user role */
@@ -85,9 +77,7 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Patch('role')
   updateRole(@Request() req, @Body() updateUserRole: UpdateUserRoleDto): Promise<User> {
-    if (req.user.role !== USER_ROLE.ADMIN) {
-      throw new ForbiddenException();
-    }
+    userRoleErrorHandler(req.user.role, [USER_ROLE.ADMIN]);
 
     return this.userService.updateRole(updateUserRole);
   }

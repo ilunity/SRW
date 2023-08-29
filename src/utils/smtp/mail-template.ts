@@ -12,7 +12,7 @@ interface ISignUpTemplate {
 class MailTemplate {
   loginTemplate = ({ username, token }: ILoginTemplate) => `
     <p><b>Hi ${username}</b></p>
-    <p>Click the link to log in to the FoodRecipes: ${client_host + '/auth/' + token}</p>
+    <p>Click the link to log in to the FoodRecipes: ${client_host + '/login/' + token}</p>
   `;
   signUpTemplate = ({ token }: ISignUpTemplate) => `
     <p>To submit registration follow this link: ${client_host + '/sign-up/' + token}</p>

@@ -1,16 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { NestedFilter } from './entity/nested-filter.entity';
-import { CreateFilterDto } from './dto';
+import { CreateFilterDto, GetFilterDto, ReadFiltersDto, UpdateFilterDto } from './dto';
 import { Op } from 'sequelize';
-import { ReadFiltersDto } from './dto/read-filters.dto';
-import { GetFilterDto } from './dto/get-filter.dto';
+import { findRowHandler } from '../utils';
+import { Sequelize } from 'sequelize-typescript';
 
 @Injectable()
 export class FilterService {
   constructor(
     @InjectModel(NestedFilter)
     private filterModel: typeof NestedFilter,
+    private sequelize: Sequelize,
   ) {}
 
   async create({ parent_id, name }: CreateFilterDto): Promise<NestedFilter> {
@@ -27,38 +28,62 @@ export class FilterService {
       return filter;
     }
 
-    const { right_key: parentRightKey, level: parentLevel } = await this.filterModel.findByPk(
-      parent_id,
+    const { right_key: parentRightKey, level: parentLevel } = await findRowHandler(() =>
+      this.filterModel.findByPk(parent_id),
     );
 
-    await this.filterModel.increment(
-      { left_key: 2, right_key: 2 },
-      {
-        where: {
-          left_key: { [Op.gt]: parentRightKey },
-        },
-      },
-    );
+    const filter = await this.sequelize.transaction(async (transaction) => {
+      try {
+        await this.filterModel.increment(
+          { left_key: 2, right_key: 2 },
+          {
+            where: {
+              left_key: { [Op.gt]: parentRightKey },
+            },
+            transaction,
+          },
+        );
 
-    await this.filterModel.increment(
-      { right_key: 2 },
-      {
-        where: {
-          right_key: { [Op.gte]: parentRightKey },
-          left_key: { [Op.lt]: parentRightKey },
-        },
-      },
-    );
+        await this.filterModel.increment(
+          { right_key: 2 },
+          {
+            where: {
+              right_key: { [Op.gte]: parentRightKey },
+              left_key: { [Op.lt]: parentRightKey },
+            },
+            transaction,
+          },
+        );
 
-    const filter = await this.filterModel.create({
-      left_key: parentRightKey,
-      right_key: parentRightKey + 1,
-      level: parentLevel + 1,
-      name,
-      parent_id,
+        const filter = await this.filterModel.create(
+          {
+            left_key: parentRightKey,
+            right_key: parentRightKey + 1,
+            level: parentLevel + 1,
+            name,
+            parent_id,
+          },
+          {
+            transaction,
+          },
+        );
+
+        return filter;
+      } catch (error) {
+        throw new InternalServerErrorException('Не удалось добавить фильтр');
+      }
     });
 
     return filter;
+  }
+
+  async update(updateFilterDto: UpdateFilterDto): Promise<NestedFilter> {
+    const filter = await findRowHandler(
+      () => this.filterModel.findByPk(updateFilterDto.id),
+      'Фильтр',
+    );
+
+    return filter.update(updateFilterDto);
   }
 
   async getAll(): Promise<ReadFiltersDto[]> {

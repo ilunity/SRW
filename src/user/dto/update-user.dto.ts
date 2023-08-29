@@ -1,14 +1,15 @@
-import { IsDefined, IsNumber, IsString } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class UpdateUserDto {
   @IsDefined()
   @IsNumber()
   readonly id: number;
 
+  @IsOptional()
   @IsString()
   readonly username?: string;
 
-  @ApiProperty({ type: 'string', format: 'binary', required: false })
-  avatar: Express.Multer.File;
+  @IsOptional()
+  @IsString()
+  readonly avatar?: string;
 }

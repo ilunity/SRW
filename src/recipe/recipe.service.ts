@@ -23,7 +23,7 @@ import { UserService } from '../user/user.service';
 import { FavouriteRecipe } from '../favourite-recipe/entity/favourite-recipe.entity';
 import { NestedFilter } from '../nested-filter/entity/nested-filter.entity';
 import { Sequelize } from 'sequelize-typescript';
-import { FilterKeys } from '../nested-filter/dto/get-filter.dto';
+import { FilterKeys } from '../nested-filter/dto';
 import { RecipeProductService } from '../recipe-product/recipe-product.service';
 import { RecipeStepService } from '../recipe-step/recipe-step.service';
 import { RecipeFilterService } from '../recipe-filter/recipe-filter.service';
@@ -51,7 +51,7 @@ export class RecipeService {
   ) {}
 
   async create(user: IUserPayload, dto: CreateRecipeDto): Promise<Recipe> {
-    const imagePath = this.fileService.createFromBase64(dto.img);
+    const imagePath = this.fileService.createImageFromBase64(dto.img);
 
     const recipe = await this.recipeModel.create({ ...dto, user_id: user.id, img: imagePath });
     return recipe;
@@ -156,13 +156,11 @@ export class RecipeService {
       ...additionalClause,
     };
 
-    if (filters !== undefined) {
-      clause['$filters.filter.left_key$'] = {
-        [Op.and]: filters.map(({ left }) => ({ [Op.gte]: left })),
-      };
-      clause['$filters.filter.right_key$'] = {
-        [Op.and]: filters?.map(({ right }) => ({ [Op.lte]: right })),
-      };
+    if (filters.length !== 0) {
+      clause[Op.or] = filters.map(({ left, right }) => ({
+        '$filters.filter.left_key$': { [Op.gte]: left },
+        '$filters.filter.right_key$': { [Op.lte]: right },
+      }));
     }
 
     return this.recipeModel.findAll({

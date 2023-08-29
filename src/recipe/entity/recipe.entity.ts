@@ -30,7 +30,7 @@ export class Recipe extends Model {
   @Column({ allowNull: false })
   servings_number: number;
 
-  @Column({ defaultValue: RECIPE_STATUS.CREATION })
+  @Column({ defaultValue: RECIPE_STATUS.CREATED })
   status: RECIPE_STATUS;
 
   @ForeignKey(() => User)

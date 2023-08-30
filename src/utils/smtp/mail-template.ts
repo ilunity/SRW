@@ -1,7 +1,6 @@
 const client_host = process.env.CLIENT_HOST;
 
 interface ILoginTemplate {
-  username: string;
   token: string;
 }
 
@@ -10,13 +9,12 @@ interface ISignUpTemplate {
 }
 
 class MailTemplate {
-  loginTemplate = ({ username, token }: ILoginTemplate) => `
-    <p><b>Hi ${username}</b></p>
-    <p>Click the link to log in to the FoodRecipes: ${client_host + '/login/' + token}</p>
+  loginTemplate = ({ token }: ILoginTemplate) => `
+    <b><a href='${client_host + '/login/' + token}'>Войти в аккаунт</a></b>
   `;
   signUpTemplate = ({ token }: ISignUpTemplate) => `
-    <p>To submit registration follow this link: ${client_host + '/sign-up/' + token}</p>
-    <p>Ignore this message if you didn't try to sign up</p>
+    <b><a href='${client_host + '/sign-up/' + token}'>Подтвердить регистрацию</a></b>
+    <p>Не переходите по ссылке, если вы не пытались зарегистрироваться.</p>
   `;
 }
 

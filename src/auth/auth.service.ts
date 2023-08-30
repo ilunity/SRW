@@ -54,7 +54,7 @@ export class AuthService {
     const payload = { username: user.username, sub: user.id, role: user.role };
     const token = this.jwtService.sign(payload);
 
-    const htmlMessage = mailTemplates.loginTemplate({ token, username: user.username });
+    const htmlMessage = mailTemplates.loginTemplate({ token });
     const mailOptions = getMailOptions({ email: user.email, htmlMessage });
 
     try {

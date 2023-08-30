@@ -2,6 +2,7 @@ services:
   server:
     build: .
     image: ilunity/foody-nest:latest
+    container_name: foody-server
     restart: always
     volumes:
       - static:/usr/src/app/dist/static
@@ -27,7 +28,7 @@ services:
       - ${PORT}:${PORT}
 
   pgadmin:
-    image: dpage/pgadmin4:4.23
+    image: dpage/pgadmin4:latest
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
@@ -41,6 +42,7 @@ services:
 
   postgres:
     image: postgres
+    container_name: foody-db
     restart: always
     volumes:
       - pgdata:/var/lib/postgresql/data

@@ -82,4 +82,4 @@ jobs:
             echo PGADMIN_DEFAULT_PASSWORD=${{ secrets.PGADMIN_DEFAULT_PASSWORD }} >> .env
             echo PGADMIN_LISTEN_PORT=${{ secrets.PGADMIN_LISTEN_PORT }} >> .env
             docker compose down
-            docker compose up -d
+            docker compose up --pull always -d

@@ -198,8 +198,8 @@ export class RecipeService {
       attributes: {
         include: [
           [fn('AVG', col('rating.score')), 'avg_rating'],
-          [fn('COUNT', col('favourite_recipes.id')), 'favourites'],
-          [fn('COUNT', col('comments.id')), 'comments_number'],
+          [fn('COUNT', fn('DISTINCT', col('favourite_recipes.id'))), 'favourites'],
+          [fn('COUNT', fn('DISTINCT', col('comments.id'))), 'comments_number'],
         ],
         exclude: ['user_id'],
       },

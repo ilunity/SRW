@@ -1,19 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Recipe } from './entity/recipe.entity';
-import {
-  CreateRecipeCombinedDto,
-  CreateRecipeDto,
-  ReadRecipeDto,
-  ReadRecipeIdsDto,
-  ReadRecipePreviewDto,
-  UpdateRecipeStatusDto,
-} from './dto';
+import { CreateRecipeDto, ReadRecipeDto, ReadRecipePreviewDto, UpdateRecipeStatusDto } from './dto';
 import { User } from '../user/entity/user.entity';
 import { Comment } from '../comment/entity/comment.entity';
 import { FileService } from '../file/file.service';
 import { RecipeProduct } from '../recipe-product/entity/recipe-product.entity';
-import { RECIPE_STATUS } from './entity/recipe-statuses';
 import { RecipeStep } from '../recipe-step/entity/recipe-step.entity';
 import { RecipeFilter } from '../recipe-filter/entity/recipe-filter.entity';
 import { Rating } from '../rating/entity/rating.entity';
@@ -23,11 +15,15 @@ import { UserService } from '../user/user.service';
 import { FavouriteRecipe } from '../favourite-recipe/entity/favourite-recipe.entity';
 import { NestedFilter } from '../nested-filter/entity/nested-filter.entity';
 import { Sequelize } from 'sequelize-typescript';
-import { FilterKeys } from '../nested-filter/dto';
 import { RecipeProductService } from '../recipe-product/recipe-product.service';
 import { RecipeStepService } from '../recipe-step/recipe-step.service';
 import { RecipeFilterService } from '../recipe-filter/recipe-filter.service';
 import { IUserPayload } from '../auth/jwt-strategies';
+
+export enum RECIPE_BELONGING {
+  MY = 'MY',
+  FAVOURITE = 'FAVOURITE',
+}
 
 @Injectable()
 export class RecipeService {
@@ -51,24 +47,24 @@ export class RecipeService {
   ) {}
 
   async create(user: IUserPayload, dto: CreateRecipeDto): Promise<Recipe> {
-    const imagePath = this.fileService.createImageFromBase64(dto.img);
+    const { ingredients: ingredientsDto, steps: stepsDto, filters: filtersDto, ...recipeDto } = dto;
 
-    const recipe = await this.recipeModel.create({ ...dto, user_id: user.id, img: imagePath });
-    return recipe;
-  }
+    const imagePath = this.fileService.createImageFromBase64(recipeDto.img);
+    const recipe = await this.recipeModel.create({
+      ...recipeDto,
+      user_id: user.id,
+      img: imagePath,
+    });
 
-  async createCombined(user: IUserPayload, dto: CreateRecipeCombinedDto): Promise<Recipe> {
-    const recipe = await this.create(user, dto.description);
-
-    for (const ingredient of dto.ingredients) {
+    for (const ingredient of ingredientsDto) {
       this.recipeProductService.create({ ...ingredient, recipe_id: recipe.id });
     }
 
-    for (const step of dto.steps) {
+    for (const step of stepsDto) {
       this.recipeStepService.create({ ...step, recipe_id: recipe.id });
     }
 
-    for (const filter of dto.filters) {
+    for (const filter of filtersDto) {
       this.recipeFilterService.create({ ...filter, recipe_id: recipe.id });
     }
 
@@ -77,15 +73,6 @@ export class RecipeService {
 
   async findAll(): Promise<Recipe[]> {
     return this.recipeModel.findAll();
-  }
-
-  async findAllIds(): Promise<ReadRecipeIdsDto[]> {
-    return this.recipeModel.findAll({
-      where: {
-        status: RECIPE_STATUS.SHARED,
-      },
-      attributes: ['id'],
-    });
   }
 
   async findAllFavourites(userId: number): Promise<ReadRecipePreviewDto[]> {
@@ -148,19 +135,35 @@ export class RecipeService {
   async find({
     filters = [],
     additionalClause,
+    belongTo,
   }: {
-    filters?: FilterKeys[];
+    filters?: number[];
     additionalClause?: WhereOptions<Recipe>;
+    belongTo?: {
+      type: RECIPE_BELONGING;
+      user: IUserPayload;
+    };
   }): Promise<ReadRecipePreviewDto[]> {
     const clause: WhereOptions = {
       ...additionalClause,
     };
 
     if (filters.length !== 0) {
-      clause[Op.or] = filters.map(({ left, right }) => ({
-        '$filters.filter.left_key$': { [Op.gte]: left },
-        '$filters.filter.right_key$': { [Op.lte]: right },
+      const filters_keys = await this.nestedFilterModel.findAll({
+        where: {
+          id: { [Op.in]: filters },
+        },
+        attributes: ['left_key', 'right_key'],
+      });
+
+      clause[Op.or] = filters_keys.map(({ left_key, right_key }) => ({
+        '$filters.filter.left_key$': { [Op.gte]: left_key },
+        '$filters.filter.right_key$': { [Op.lte]: right_key },
       }));
+    }
+
+    if (belongTo?.type === RECIPE_BELONGING.MY) {
+      clause['user_id'] = belongTo.user.id;
     }
 
     return this.recipeModel.findAll({
@@ -193,6 +196,7 @@ export class RecipeService {
           model: FavouriteRecipe,
           as: 'favourite_recipes',
           attributes: [],
+          where: belongTo?.type === RECIPE_BELONGING.FAVOURITE ? { user_id: belongTo.user.id } : {},
         },
       ],
       attributes: {
@@ -205,6 +209,7 @@ export class RecipeService {
       },
       group: [
         'Recipe.id',
+        'favourite_recipes.id',
         'user.id',
         'products.id',
         'products.product.id',

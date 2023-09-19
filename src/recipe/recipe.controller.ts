@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -19,9 +20,6 @@ import {
 } from './dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Recipe } from './entity/recipe.entity';
-import { RecipeStepService } from '../recipe-step/recipe-step.service';
-import { RecipeFilterService } from '../recipe-filter/recipe-filter.service';
-import { RecipeProductService } from '../recipe-product/recipe-product.service';
 import { JwtAuthGuard, OptionalJwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RECIPE_STATUS } from './entity/recipe-statuses';
 import { USER_ROLE } from '../user/entity/user-roles';
@@ -29,16 +27,20 @@ import { CommentService } from '../comment/comment.service';
 import { CreateRecipeCommentDto } from './dto/create-recipe-comment.dto';
 import { Comment } from '../comment/entity/comment.entity';
 import { authErrorHandler, userRoleErrorHandler } from '../utils';
+import { FavouriteRecipe } from '../favourite-recipe/entity/favourite-recipe.entity';
+import { FavouriteRecipeService } from '../favourite-recipe/favourite-recipe.service';
+import { RatingScoreDto } from '../rating/dto';
+import { Rating } from '../rating/entity/rating.entity';
+import { RatingService } from '../rating/rating.service';
 
 @ApiTags('Recipe')
 @Controller('recipe')
 export class RecipeController {
   constructor(
     private recipeService: RecipeService,
-    private recipeStepService: RecipeStepService,
-    private recipeFilterService: RecipeFilterService,
-    private recipeProductService: RecipeProductService,
     private commentService: CommentService,
+    private favouriteRecipeService: FavouriteRecipeService,
+    private ratingService: RatingService,
   ) {}
 
   /** Creates the Recipe (Including Products, Categories and Steps for it) */
@@ -73,7 +75,7 @@ export class RecipeController {
     }
 
     return this.recipeService.find({
-      filters: query.categories,
+      categories: query.categories,
       additionalClause: query.status ? { status: query.status } : {},
       belongTo: {
         type: query.belongTo,
@@ -89,8 +91,15 @@ export class RecipeController {
   }
 
   /** Updated status of the Recipe */
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Patch('status')
-  updateStatus(@Body() updateRecipeStatusDto: UpdateRecipeStatusDto): Promise<Recipe> {
+  updateStatus(
+    @Request() req,
+    @Body() updateRecipeStatusDto: UpdateRecipeStatusDto,
+  ): Promise<Recipe> {
+    userRoleErrorHandler(req.user.role, [USER_ROLE.MODERATOR, USER_ROLE.ADMIN]);
+
     return this.recipeService.updateStatus(updateRecipeStatusDto);
   }
 
@@ -109,6 +118,100 @@ export class RecipeController {
       ...createRecipeCommentDto,
       recipe_id,
       user_id: req.user.id,
+    });
+  }
+
+  // ---------- favourites ----------
+
+  /** Adds recipe in favourites */
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post(':recipe_id/favourite')
+  addFavouriteRecipe(
+    @Request() req,
+    @Param('recipe_id') recipe_id: number,
+  ): Promise<FavouriteRecipe> {
+    return this.favouriteRecipeService.create({
+      user_id: req.user.id,
+      recipe_id,
+    });
+  }
+
+  /** Returns true if record exists or false if not */
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get(':recipe_id/favourite')
+  findFavourite(@Request() req, @Param('recipe_id') recipe_id: number): Promise<boolean> {
+    return this.favouriteRecipeService.isFavourite({
+      user_id: req.user.id,
+      recipe_id,
+    });
+  }
+
+  /** Remove the favourite recipe */
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Delete(':recipe_id/favourite')
+  removeFavouriteRecipe(@Request() req, @Param('recipe_id') recipe_id: number) {
+    return this.favouriteRecipeService.remove({
+      user_id: req.user.id,
+      recipe_id,
+    });
+  }
+
+  // ---------- rating ----------
+
+  /** Rates some recipe */
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Post(':recipe_id/rating')
+  rate(
+    @Request() req,
+    @Param('recipe_id') recipeId: number,
+    @Body() ratingScoreDto: RatingScoreDto,
+  ): Promise<Rating> {
+    return this.ratingService.create({
+      user_id: req.user.id,
+      recipe_id: recipeId,
+      score: ratingScoreDto.score,
+    });
+  }
+
+  /** Returns the Rating record */
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get(':recipe_id/rating')
+  findOneRate(@Request() req, @Param('recipe_id') recipeId: number): Promise<Rating | undefined> {
+    return this.ratingService.findOne({
+      user_id: req.user.id,
+      recipe_id: recipeId,
+    });
+  }
+
+  /** Updates the rating */
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Patch(':recipe_id/rating')
+  updateRate(
+    @Request() req,
+    @Param('recipe_id') recipeId: number,
+    @Body() ratingScoreDto: RatingScoreDto,
+  ): Promise<Rating> {
+    return this.ratingService.update({
+      user_id: req.user.id,
+      recipe_id: recipeId,
+      score: ratingScoreDto.score,
+    });
+  }
+
+  /** Deletes the rating */
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Delete(':recipe_id/rating')
+  removeRate(@Request() req, @Param('recipe_id') recipeId: number) {
+    return this.ratingService.remove({
+      user_id: req.user.id,
+      recipe_id: recipeId,
     });
   }
 }

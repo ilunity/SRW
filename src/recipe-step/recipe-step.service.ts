@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { RecipeStep } from './entity/recipe-step.entity';
 import { CreateRecipeStepDto, UpdateRecipeStepDto } from './dto';
 import { FileService, FileType } from '../file/file.service';
+import { CreateOptions } from 'sequelize';
 
 @Injectable()
 export class RecipeStepService {
@@ -12,13 +13,19 @@ export class RecipeStepService {
     private fileService: FileService,
   ) {}
 
-  async create(createFavouriteRecipeDto: CreateRecipeStepDto): Promise<RecipeStep> {
+  async create(
+    createFavouriteRecipeDto: CreateRecipeStepDto,
+    options?: CreateOptions,
+  ): Promise<RecipeStep> {
     const imagePath = this.fileService.createImageFromBase64(createFavouriteRecipeDto.img);
 
-    const recipeStep = await this.recipeStepModel.create({
-      ...createFavouriteRecipeDto,
-      img: imagePath,
-    });
+    const recipeStep = await this.recipeStepModel.create(
+      {
+        ...createFavouriteRecipeDto,
+        img: imagePath,
+      },
+      options,
+    );
 
     return recipeStep;
   }

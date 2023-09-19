@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { FavouriteRecipe } from './entity/favourite-recipe.entity';
 import { FavouriteRecipeDto } from './dto';
-import { handleRowExist } from 'src/utils/row-existence-handlers';
+import { checkRowExist, handleRowExist } from 'src/utils/row-existence-handlers';
 
 @Injectable()
 export class FavouriteRecipeService {
@@ -33,6 +33,10 @@ export class FavouriteRecipeService {
     return await this.favouriteRecipeModel.findOne({
       where: { ...favouriteRecipeDto },
     });
+  }
+
+  async isFavourite(favouriteRecipeDto: FavouriteRecipeDto): Promise<boolean> {
+    return await checkRowExist(this.favouriteRecipeModel, { ...favouriteRecipeDto });
   }
 
   async remove(removeFavouriteRecipeDto: FavouriteRecipeDto): Promise<void> {

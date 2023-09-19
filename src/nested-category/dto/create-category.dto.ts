@@ -1,6 +1,6 @@
 import { IsDefined, IsNumber, IsOptional, IsString } from 'class-validator';
 
-export class CreateFilterDto {
+export class CreateCategoryDto {
   @IsDefined()
   @IsString()
   readonly name: string;

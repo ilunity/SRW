@@ -1,14 +1,12 @@
 import { User } from '../../user/entity/user.entity';
 import { RECIPE_STATUS } from '../entity/recipe-statuses';
-import { RecipeStep } from '../../recipe-step/entity/recipe-step.entity';
 import { ReadRecipeProductDto } from '../../recipe-product/dto';
-import { ReadRecipeFilterDto } from '../../recipe-filter/dto';
 import { OmitType } from '@nestjs/swagger';
-import { ReadCommentDto } from '../../comment/dto';
+import { ReadRecipeCommentDto } from '../../comment/dto';
+import { ReadCategoryDto } from '../../nested-category/dto';
+import { ReadRecipeStepDto } from '../../recipe-step/dto';
 
-class ProductsDto extends OmitType(ReadRecipeProductDto, ['recipe']) {}
-
-class FiltersDto extends OmitType(ReadRecipeFilterDto, ['recipe']) {}
+class ProductsDto extends OmitType(ReadRecipeProductDto, ['recipe', 'id']) {}
 
 export class ReadRecipeDto {
   readonly id: number;
@@ -21,8 +19,8 @@ export class ReadRecipeDto {
   readonly description: string;
   readonly status: RECIPE_STATUS;
   readonly user: User;
-  readonly comments: ReadCommentDto[];
-  readonly steps: RecipeStep[];
+  readonly comments: ReadRecipeCommentDto[];
+  readonly steps: ReadRecipeStepDto[];
   readonly products: ProductsDto[];
-  readonly filters: FiltersDto[];
+  readonly categories: ReadCategoryDto[];
 }

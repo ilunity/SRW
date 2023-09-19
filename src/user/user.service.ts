@@ -44,8 +44,8 @@ export class UserService {
     await user.destroy();
   }
 
-  async update(updateDto: UpdateUserDto): Promise<User> {
-    const user = await findRowHandler(() => this.userModel.findByPk(updateDto.id), 'Пользователь');
+  async update(userId: number, updateDto: UpdateUserDto): Promise<User> {
+    const user = await findRowHandler(() => this.userModel.findByPk(userId), 'Пользователь');
 
     let imagePath;
     if (updateDto.avatar) {

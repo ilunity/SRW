@@ -1,6 +1,6 @@
 import { IsDefined, IsNumber, IsString } from 'class-validator';
 
-export class UpdateFilterDto {
+export class UpdateCategoryDto {
   @IsDefined()
   @IsNumber()
   readonly id: number;

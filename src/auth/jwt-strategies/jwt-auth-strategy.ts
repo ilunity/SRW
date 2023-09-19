@@ -25,7 +25,7 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: ILoginTokenPayload) {
+  async validate(payload: ILoginTokenPayload): Promise<IUserPayload> {
     return {
       username: payload.username,
       id: payload.sub,

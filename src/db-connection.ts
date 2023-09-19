@@ -7,8 +7,8 @@ import { RecipeProduct } from './recipe-product/entity/recipe-product.entity';
 import { FavouriteRecipe } from './favourite-recipe/entity/favourite-recipe.entity';
 import { Rating } from './rating/entity/rating.entity';
 import { RecipeStep } from './recipe-step/entity/recipe-step.entity';
-import { RecipeFilter } from './recipe-filter/entity/recipe-filter.entity';
-import { NestedFilter } from './nested-filter/entity/nested-filter.entity';
+import { RecipeCategory } from './recipe-category/entity/recipe-category.entity';
+import { NestedCategory } from './nested-category/entity/nested-category.entity';
 
 export const DbConnection = SequelizeModule.forRoot({
   dialect: 'postgres',
@@ -22,10 +22,10 @@ export const DbConnection = SequelizeModule.forRoot({
     Comment,
     Product,
     RecipeProduct,
-    NestedFilter,
+    NestedCategory,
     RecipeStep,
     Recipe,
-    RecipeFilter,
+    RecipeCategory,
     FavouriteRecipe,
     Rating,
   ],

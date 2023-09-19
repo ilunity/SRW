@@ -1,4 +1,12 @@
-import { BelongsTo, Column, ForeignKey, HasMany, Model, Table } from 'sequelize-typescript';
+import {
+  BelongsTo,
+  BelongsToMany,
+  Column,
+  ForeignKey,
+  HasMany,
+  Model,
+  Table,
+} from 'sequelize-typescript';
 import { DataTypes } from 'sequelize';
 import { User } from '../../user/entity/user.entity';
 import { ApiHideProperty } from '@nestjs/swagger';
@@ -7,8 +15,9 @@ import { RecipeProduct } from '../../recipe-product/entity/recipe-product.entity
 import { FavouriteRecipe } from '../../favourite-recipe/entity/favourite-recipe.entity';
 import { Rating } from '../../rating/entity/rating.entity';
 import { RecipeStep } from '../../recipe-step/entity/recipe-step.entity';
-import { RecipeFilter } from '../../recipe-filter/entity/recipe-filter.entity';
 import { RECIPE_STATUS } from './recipe-statuses';
+import { NestedCategory } from '../../nested-category/entity/nested-category.entity';
+import { RecipeCategory } from '../../recipe-category/entity/recipe-category.entity';
 
 @Table({ timestamps: false })
 export class Recipe extends Model {
@@ -54,8 +63,8 @@ export class Recipe extends Model {
   products: RecipeProduct[];
 
   @ApiHideProperty()
-  @HasMany(() => RecipeFilter)
-  filters: RecipeFilter[];
+  @BelongsToMany(() => NestedCategory, () => RecipeCategory)
+  categories: NestedCategory[];
 
   @ApiHideProperty()
   @HasMany(() => FavouriteRecipe)

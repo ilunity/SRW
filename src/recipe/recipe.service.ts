@@ -1,166 +1,201 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Recipe } from './entity/recipe.entity';
-import {
-  CreateRecipeCombinedDto,
-  CreateRecipeDto,
-  ReadRecipeDto,
-  ReadRecipeIdsDto,
-  ReadRecipePreviewDto,
-  UpdateRecipeStatusDto,
-} from './dto';
+import { CreateRecipeDto, ReadRecipeDto, ReadRecipePreviewDto, UpdateRecipeStatusDto } from './dto';
 import { User } from '../user/entity/user.entity';
 import { Comment } from '../comment/entity/comment.entity';
 import { FileService } from '../file/file.service';
 import { RecipeProduct } from '../recipe-product/entity/recipe-product.entity';
-import { RECIPE_STATUS } from './entity/recipe-statuses';
 import { RecipeStep } from '../recipe-step/entity/recipe-step.entity';
-import { RecipeFilter } from '../recipe-filter/entity/recipe-filter.entity';
+import { RecipeCategory } from '../recipe-category/entity/recipe-category.entity';
 import { Rating } from '../rating/entity/rating.entity';
-import { col, fn, Op, WhereOptions } from 'sequelize';
+import { col, FindOptions, fn, Op, WhereOptions } from 'sequelize';
 import { Product } from '../product/entity/product.entity';
-import { UserService } from '../user/user.service';
 import { FavouriteRecipe } from '../favourite-recipe/entity/favourite-recipe.entity';
-import { NestedFilter } from '../nested-filter/entity/nested-filter.entity';
+import { NestedCategory } from '../nested-category/entity/nested-category.entity';
 import { Sequelize } from 'sequelize-typescript';
-import { FilterKeys } from '../nested-filter/dto';
 import { RecipeProductService } from '../recipe-product/recipe-product.service';
 import { RecipeStepService } from '../recipe-step/recipe-step.service';
-import { RecipeFilterService } from '../recipe-filter/recipe-filter.service';
 import { IUserPayload } from '../auth/jwt-strategies';
+import { RecipeCategoryService } from '../recipe-category/recipe-category.service';
+
+export enum RECIPE_BELONGING {
+  MY = 'MY',
+  FAVOURITE = 'FAVOURITE',
+}
 
 @Injectable()
 export class RecipeService {
+  readRecipeOptions: FindOptions = {
+    include: [
+      User,
+      {
+        model: Comment,
+        include: [User],
+        attributes: {
+          exclude: ['recipe_id', 'user_id'],
+        },
+      },
+      {
+        model: RecipeStep,
+        attributes: {
+          exclude: ['recipe_id'],
+        },
+      },
+      {
+        model: NestedCategory,
+        through: {
+          attributes: [],
+        },
+      },
+      {
+        model: RecipeProduct,
+        include: [Product],
+        attributes: {
+          exclude: ['recipe_id', 'product_id', 'id'],
+        },
+      },
+      {
+        model: Rating,
+        as: 'rating',
+        attributes: [],
+      },
+      {
+        model: FavouriteRecipe,
+        as: 'favourite_recipes',
+        attributes: [],
+      },
+    ],
+    attributes: {
+      include: [
+        [fn('AVG', col('rating.score')), 'avg_rating'],
+        [fn('COUNT', fn('DISTINCT', col('favourite_recipes.id'))), 'favourites'],
+      ],
+      exclude: ['user_id'],
+    },
+    group: [
+      'Recipe.id',
+      'user.id',
+      'comments.id',
+      'products.id',
+      'steps.id',
+      'categories.id',
+      'products.product.id',
+      'comments.user.id',
+    ],
+  };
+
   constructor(
     @InjectModel(Recipe)
     private recipeModel: typeof Recipe,
     @InjectModel(RecipeStep)
     private recipeStepModel: typeof RecipeStep,
-    @InjectModel(RecipeFilter)
-    private recipeFilterModel: typeof RecipeFilter,
+    @InjectModel(RecipeCategory)
+    private recipeCategoryModel: typeof RecipeCategory,
     @InjectModel(RecipeProduct)
     private recipeProductModel: typeof RecipeProduct,
-    @InjectModel(NestedFilter)
-    private nestedFilterModel: typeof NestedFilter,
+    @InjectModel(NestedCategory)
+    private nestedCategoryModel: typeof NestedCategory,
     private sequelize: Sequelize,
-    private userService: UserService,
     private fileService: FileService,
     private recipeProductService: RecipeProductService,
     private recipeStepService: RecipeStepService,
-    private recipeFilterService: RecipeFilterService,
+    private recipeCategoryService: RecipeCategoryService,
   ) {}
 
   async create(user: IUserPayload, dto: CreateRecipeDto): Promise<Recipe> {
-    const imagePath = this.fileService.createImageFromBase64(dto.img);
+    const {
+      ingredients: ingredientsDto,
+      steps: stepsDto,
+      categories: categoriesDto,
+      ...recipeDto
+    } = dto;
 
-    const recipe = await this.recipeModel.create({ ...dto, user_id: user.id, img: imagePath });
+    const recipe = await this.sequelize.transaction(async (transaction) => {
+      try {
+        const imagePath = this.fileService.createImageFromBase64(recipeDto.img);
+        const recipe = await this.recipeModel.create(
+          {
+            ...recipeDto,
+            user_id: user.id,
+            img: imagePath,
+          },
+          { transaction },
+        );
+
+        for (const ingredient of ingredientsDto) {
+          this.recipeProductService.create(
+            { ...ingredient, recipe_id: recipe.id },
+            { transaction },
+          );
+        }
+
+        for (const step of stepsDto) {
+          this.recipeStepService.create({ ...step, recipe_id: recipe.id }, { transaction });
+        }
+
+        for (const category of categoriesDto) {
+          this.recipeCategoryService.create(
+            { category_id: category, recipe_id: recipe.id },
+            { transaction },
+          );
+        }
+
+        return recipe;
+      } catch (error) {
+        throw new InternalServerErrorException('Не удалось добавить рецепт');
+      }
+    });
+
     return recipe;
   }
 
-  async createCombined(user: IUserPayload, dto: CreateRecipeCombinedDto): Promise<Recipe> {
-    const recipe = await this.create(user, dto.description);
-
-    for (const ingredient of dto.ingredients) {
-      this.recipeProductService.create({ ...ingredient, recipe_id: recipe.id });
-    }
-
-    for (const step of dto.steps) {
-      this.recipeStepService.create({ ...step, recipe_id: recipe.id });
-    }
-
-    for (const filter of dto.filters) {
-      this.recipeFilterService.create({ ...filter, recipe_id: recipe.id });
-    }
-
-    return recipe;
-  }
-
-  async findAll(): Promise<Recipe[]> {
-    return this.recipeModel.findAll();
-  }
-
-  async findAllIds(): Promise<ReadRecipeIdsDto[]> {
-    return this.recipeModel.findAll({
-      where: {
-        status: RECIPE_STATUS.SHARED,
-      },
-      attributes: ['id'],
-    });
-  }
-
-  async findAllFavourites(userId: number): Promise<ReadRecipePreviewDto[]> {
-    const favouriteRecipes = await this.recipeModel.findAll({
-      include: [
-        User,
-        {
-          model: RecipeProduct,
-          include: [Product],
-          attributes: {
-            exclude: ['recipe_id', 'product_id'],
-          },
-        },
-        {
-          model: RecipeFilter,
-          include: [NestedFilter],
-          attributes: [],
-        },
-        {
-          model: Comment,
-          as: 'comments',
-          attributes: [],
-        },
-        {
-          model: Rating,
-          as: 'rating',
-          attributes: [],
-        },
-        {
-          model: FavouriteRecipe,
-          as: 'favourite_recipes',
-          attributes: [],
-          where: {
-            user_id: userId,
-          },
-        },
-      ],
-      attributes: {
-        include: [
-          [fn('AVG', col('rating.score')), 'avg_rating'],
-          [fn('COUNT', fn('DISTINCT', col('favourite_recipes.id'))), 'favourites'],
-          [fn('COUNT', col('comments.id')), 'comments_number'],
-        ],
-        exclude: ['user_id'],
-      },
-      group: [
-        'Recipe.id',
-        'favourite_recipes.id',
-        'user.id',
-        'products.id',
-        'products.product.id',
-        'filters.id',
-        'filters.filter.id',
-      ],
-    });
-
-    return favouriteRecipes;
+  async findAll(): Promise<ReadRecipeDto[]> {
+    return this.recipeModel.findAll(this.readRecipeOptions);
   }
 
   async find({
-    filters = [],
+    categories = [],
     additionalClause,
+    belongTo,
   }: {
-    filters?: FilterKeys[];
+    categories?: number[];
     additionalClause?: WhereOptions<Recipe>;
+    belongTo?: {
+      type: RECIPE_BELONGING;
+      user: IUserPayload;
+    };
   }): Promise<ReadRecipePreviewDto[]> {
     const clause: WhereOptions = {
       ...additionalClause,
     };
 
-    if (filters.length !== 0) {
-      clause[Op.or] = filters.map(({ left, right }) => ({
-        '$filters.filter.left_key$': { [Op.gte]: left },
-        '$filters.filter.right_key$': { [Op.lte]: right },
+    if (categories.length !== 0) {
+      const categories_keys = await this.nestedCategoryModel.findAll({
+        where: {
+          id: { [Op.in]: categories },
+        },
+        attributes: ['left_key', 'right_key'],
+      });
+
+      clause[Op.or] = categories_keys.map(({ left_key, right_key }) => ({
+        '$categories.left_key$': { [Op.gte]: left_key },
+        '$categories.right_key$': { [Op.lte]: right_key },
       }));
+    }
+
+    if (belongTo?.type === RECIPE_BELONGING.MY) {
+      clause['user_id'] = belongTo.user.id;
+    }
+
+    if (belongTo) {
+      if (belongTo.type === RECIPE_BELONGING.MY) {
+        clause['user_id'] = belongTo.user.id;
+      }
+
+      if (belongTo.type === RECIPE_BELONGING.FAVOURITE) {
+        clause['$favourite_recipes.user_id$'] = belongTo.user.id;
+      }
     }
 
     return this.recipeModel.findAll({
@@ -175,8 +210,10 @@ export class RecipeService {
           },
         },
         {
-          model: RecipeFilter,
-          include: [NestedFilter],
+          model: NestedCategory,
+          through: {
+            attributes: [],
+          },
           attributes: [],
         },
         {
@@ -205,80 +242,18 @@ export class RecipeService {
       },
       group: [
         'Recipe.id',
+        'favourite_recipes.id',
         'user.id',
         'products.id',
         'products.product.id',
-        'filters.id',
-        'filters.filter.id',
+        'categories.id',
+        'categories.RecipeCategory.category_id',
       ],
-    });
-  }
-
-  async findMy(payload: IUserPayload): Promise<ReadRecipePreviewDto[]> {
-    const user = await this.userService.findOne(payload.id);
-
-    return this.find({
-      additionalClause: { user_id: user.id },
     });
   }
 
   async findOne(id: number): Promise<ReadRecipeDto> {
-    return this.recipeModel.findOne({
-      where: { id },
-      include: [
-        User,
-        {
-          model: Comment,
-          include: [User],
-          attributes: {
-            exclude: ['recipe_id'],
-          },
-        },
-        RecipeStep,
-        {
-          model: RecipeFilter,
-          include: [NestedFilter],
-          attributes: {
-            exclude: ['recipe_id', 'filter_id'],
-          },
-        },
-        {
-          model: RecipeProduct,
-          include: [Product],
-          attributes: {
-            exclude: ['recipe_id', 'product_id'],
-          },
-        },
-        {
-          model: Rating,
-          as: 'rating',
-          attributes: [],
-        },
-        {
-          model: FavouriteRecipe,
-          as: 'favourite_recipes',
-          attributes: [],
-        },
-      ],
-      attributes: {
-        include: [
-          [fn('AVG', col('rating.score')), 'avg_rating'],
-          [fn('COUNT', col('favourite_recipes.id')), 'favourites'],
-        ],
-        exclude: ['user_id'],
-      },
-      group: [
-        'Recipe.id',
-        'user.id',
-        'comments.id',
-        'products.id',
-        'steps.id',
-        'filters.id',
-        'products.product.id',
-        'filters.filter.id',
-        'comments.user.id',
-      ],
-    });
+    return this.recipeModel.findByPk(id, this.readRecipeOptions);
   }
 
   async updateStatus(updateRecipeStatusDto: UpdateRecipeStatusDto): Promise<Recipe> {
@@ -290,7 +265,7 @@ export class RecipeService {
 
   async remove(id: number): Promise<void> {
     await this.recipeStepModel.destroy({ where: { recipe_id: id } });
-    await this.recipeFilterModel.destroy({ where: { recipe_id: id } });
+    await this.recipeCategoryModel.destroy({ where: { recipe_id: id } });
     await this.recipeProductModel.destroy({ where: { recipe_id: id } });
     const recipe = await this.recipeModel.findOne({ where: { id } });
     await recipe.destroy();

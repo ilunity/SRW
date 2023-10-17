@@ -34,6 +34,6 @@ export class CreateRecipeDto {
   @ValidateNested()
   readonly steps: RecipeStepDto[];
 
-  @ValidateNested()
+  @IsNumber({}, { each: true })
   readonly categories: number[];
 }
